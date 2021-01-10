@@ -25,7 +25,7 @@ Encoder myEnc(2, 3);
 #define SERIESRESISTOR 4700    
  
 int samples[NUMSAMPLES];     
-
+float prevTemp = 0;
 // Create a new instance of the AccelStepper class:
 AccelStepper stepper = AccelStepper(motorInterfaceType, stepPin, dirPin);
 long oldPosition  = -999;
@@ -52,9 +52,8 @@ void loop() {
   long newPosition = myEnc.read();
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
-    LD.clearDisplay();
-    //LD.printString_12x16("Pos.: ", 0, 0);
-    LD.printNumber(newPosition, 3, 5, 6);
+    LD.printString_12x16("S:      ", 0, 6);
+    LD.printNumber(newPosition, 0, 24, 6);
   }
   // Set the current position to 0:
 
@@ -70,7 +69,18 @@ void loop() {
   // convert the value to resistance
   //reading = (1023 / reading)  - 1;     // (1023/ADC - 1) 
   //reading = SERIESRESISTOR / reading;  // 10K / (1023/ADC - 1)
+  
+  float newTemp = getTemp();
+  if (newTemp != prevTemp) {
+    prevTemp = newTemp;
+    LD.printString_12x16("T:      ", 0, 0);
+    LD.printNumber(newTemp, 1, 24, 0);
+  }
+  
+  delay(100);
+}
 
+float getTemp() {
   uint8_t i;
   float average;
  
@@ -87,9 +97,6 @@ void loop() {
   }
   average /= NUMSAMPLES;
  
-  //Serial.print("Average analog reading "); 
-  //Serial.println(average);
-  
   // convert the value to resistance
   average = 1023 / average - 1;
   average = SERIESRESISTOR / average;
@@ -103,12 +110,6 @@ void loop() {
   steinhart += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
   steinhart = 1.0 / steinhart;                 // Invert
   steinhart -= 273.15;                         // convert absolute temp to C
-  
-  //Serial.print("Temperature "); 
-  //Serial.print(steinhart);
-  //Serial.println(" *C");
-  LD.printString_12x16("T:      ", 0, 0);
-  LD.printNumber(steinhart, 1, 24, 0);
-  
-  delay(1000);
+
+  return steinhart;
 }

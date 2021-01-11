@@ -21,7 +21,7 @@ Encoder myEnc(2, 3);
 // but is more 'smooth'
 #define NUMSAMPLES 5
 // The beta coefficient of the thermistor (usually 3000-4000)
-#define BCOEFFICIENT 3950
+#define BCOEFFICIENT 4388
 // the value of the 'other' resistor
 #define SERIESRESISTOR 4700    
  

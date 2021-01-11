@@ -2,6 +2,7 @@
 #import "ASOLED.h"
 #include <Encoder.h>
 #include <AccelStepper.h>
+#include <PID_v1.h>
 
 Encoder myEnc(2, 3); 
 // Define stepper motor connections and motor interface type. Motor interface type must be set to 1 when using a driver:
@@ -30,6 +31,13 @@ float prevTemp = 0;
 AccelStepper stepper = AccelStepper(motorInterfaceType, stepPin, dirPin);
 long oldPosition  = -999;
 
+//Define Variables we'll be connecting to
+double Setpoint, Input, Output;
+//Specify the links and initial tuning parameters
+PID myPID(&Input, &Output, &Setpoint, 1.5, 5, 1,P_ON_M, DIRECT); //P_ON_M specifies that Proportional on Measurement be used
+                                                            //P_ON_E (Proportional on Error) is the default behavior
+
+
 void setup() {
   LD.init();  //initialze OLED display
   LD.clearDisplay();
@@ -44,7 +52,17 @@ void setup() {
   stepper.setMaxSpeed(1000);
   stepper.setCurrentPosition(0);
   //analogReference(EXTERNAL);
-  digitalWrite(heaterPin,LOW);
+  pinMode(heaterPin, OUTPUT);
+  digitalWrite(heaterPin,LOW);  
+  //tell the PID to range between 0 and the full window size
+  //myPID.SetOutputLimits(0, WindowSize);
+  //initialize the variables we're linked to
+  Input = (double)getTemp();
+  //initialize the variables we're linked to
+  Setpoint = 100;
+  //turn the PID on
+  myPID.SetMode(AUTOMATIC);
+
 }
 
 
@@ -62,13 +80,7 @@ void loop() {
   //  stepper.setSpeed(200);
   //  stepper.runSpeed();
   //}
-  //float reading;
  
-  //reading = analogRead(THERMISTORPIN);
-  //reading = 1000;
-  // convert the value to resistance
-  //reading = (1023 / reading)  - 1;     // (1023/ADC - 1) 
-  //reading = SERIESRESISTOR / reading;  // 10K / (1023/ADC - 1)
   
   float newTemp = getTemp();
   if (newTemp != prevTemp) {
@@ -76,8 +88,13 @@ void loop() {
     LD.printString_12x16("T:      ", 0, 0);
     LD.printNumber(newTemp, 1, 24, 0);
   }
+
+  Input = (double)newTemp;
+  myPID.Compute();
+  analogWrite(heaterPin,Output);
   
-  delay(100);
+  
+  //delay(100);
 }
 
 float getTemp() {

@@ -34,7 +34,7 @@ long oldPosition  = -999;
 //Define Variables we'll be connecting to
 double Setpoint, Input, Output;
 //Specify the links and initial tuning parameters
-PID myPID(&Input, &Output, &Setpoint, 1.5, 5, 1,P_ON_M, DIRECT); //P_ON_M specifies that Proportional on Measurement be used
+PID myPID(&Input, &Output, &Setpoint, 15, 3, 25,P_ON_M, DIRECT); //P_ON_M specifies that Proportional on Measurement be used
                                                             //P_ON_E (Proportional on Error) is the default behavior
 
 
@@ -60,6 +60,7 @@ void setup() {
   Input = (double)getTemp();
   //initialize the variables we're linked to
   Setpoint = 100;
+  myEnc.write(Setpoint);
   //turn the PID on
   myPID.SetMode(AUTOMATIC);
 
@@ -72,6 +73,7 @@ void loop() {
     oldPosition = newPosition;
     LD.printString_12x16("S:      ", 0, 6);
     LD.printNumber(newPosition, 0, 24, 6);
+    Setpoint = newPosition;
   }
   // Set the current position to 0:
 

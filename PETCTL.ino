@@ -2,7 +2,7 @@
 #import "ASOLED.h"
 #include <Encoder.h>
 #include <AccelStepper.h>
-#include <PID_v1.h>
+#include <PID_v2.h>
 
 Encoder myEnc(2, 3); 
 // Define stepper motor connections and motor interface type. Motor interface type must be set to 1 when using a driver:
@@ -32,11 +32,10 @@ AccelStepper stepper = AccelStepper(motorInterfaceType, stepPin, dirPin);
 long oldPosition  = -999;
 
 //Define Variables we'll be connecting to
-double Setpoint, Input, Output;
+double Setpoint, Input, Output = 0;
 //Specify the links and initial tuning parameters
-PID myPID(&Input, &Output, &Setpoint, 15, 3, 25,P_ON_M, DIRECT); //P_ON_M specifies that Proportional on Measurement be used
-                                                            //P_ON_E (Proportional on Error) is the default behavior
-
+// Specify the links and initial tuning parameters
+PID_v2 myPID(15, 3, 25, PID::Direct, PID::P_On::Measurement);
 
 void setup() {
   LD.init();  //initialze OLED display
@@ -62,7 +61,9 @@ void setup() {
   Setpoint = 100;
   myEnc.write(Setpoint);
   //turn the PID on
-  myPID.SetMode(AUTOMATIC);
+  myPID.Start(Input,      // input
+              0,     // current output
+              Setpoint);  // setpoint
 
 }
 
@@ -73,7 +74,9 @@ void loop() {
     oldPosition = newPosition;
     LD.printString_12x16("S:      ", 0, 6);
     LD.printNumber(newPosition, 0, 24, 6);
-    Setpoint = newPosition;
+    myPID.Start(Input,      // input
+                Output,     // current output
+                newPosition);  // setpoint
   }
   // Set the current position to 0:
 
@@ -92,7 +95,7 @@ void loop() {
   }
 
   Input = (double)newTemp;
-  myPID.Compute();
+  Output = myPID.Run(Input);
   analogWrite(heaterPin,Output);
   
   

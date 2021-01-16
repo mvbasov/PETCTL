@@ -1,15 +1,26 @@
-#include <Wire.h>
-#import "ASOLED.h"
-#include <Encoder.h>
-#include <AccelStepper.h>
-#include <PID_v2.h>
+#include "GyverStepper.h"
+GStepper<STEPPER2WIRE> stepper(200, 6, 5, 1);
+// 6 - STEP
+// 5 - DIR
+// 1 - EN
+#include "GyverTimers.h"
 
-Encoder myEnc(2, 3); 
-// Define stepper motor connections and motor interface type. Motor interface type must be set to 1 when using a driver:
-#define dirPin 5
-#define stepPin 6
-#define heaterPin 11
-#define motorInterfaceType 1
+#include "GyverOLED.h"
+// попробуй с буфером и без
+GyverOLED<SSD1306_128x64, OLED_NO_BUFFER> oled;
+// можно передать адрес: GyverOLED oled(0x3C);
+
+#define CLK 3
+#define DT 2
+#define SW 4
+
+#include "GyverEncoder.h"
+Encoder enc1(CLK, DT, SW);
+int value = 0;
+
+// Termistor definition
+float prevTemp = 0;
+long targetTemp = 25;
 
 // which analog pin to connect
 #define THERMISTORPIN A0         
@@ -24,82 +35,55 @@ Encoder myEnc(2, 3);
 #define BCOEFFICIENT 4388
 // the value of the 'other' resistor
 #define SERIESRESISTOR 4700    
- 
 int samples[NUMSAMPLES];     
-float prevTemp = 0;
-// Create a new instance of the AccelStepper class:
-AccelStepper stepper = AccelStepper(motorInterfaceType, stepPin, dirPin);
-long oldPosition  = -999;
-
-//Define Variables we'll be connecting to
-double Setpoint, Input, Output = 0;
-//Specify the links and initial tuning parameters
-// Specify the links and initial tuning parameters
-PID_v2 myPID(15, 3, 25, PID::Direct, PID::P_On::Measurement);
-
+boolean runMotor=false;
 void setup() {
-  LD.init();  //initialze OLED display
-  LD.clearDisplay();
-  LD.SetNormalOrientation(); // pins on top
-  //LD.SetTurnedOrientation(); // pins on bottom
-  LD.setBrightness(128);
-  LD.setNormalDisplay();
-  pinMode(stepPin, OUTPUT);
-  pinMode(dirPin, OUTPUT);
-  pinMode(heaterPin, OUTPUT);
-  // Set the maximum speed in steps per second:
-  stepper.setMaxSpeed(1000);
-  stepper.setCurrentPosition(0);
-  //analogReference(EXTERNAL);
-  pinMode(heaterPin, OUTPUT);
-  digitalWrite(heaterPin,LOW);  
-  //tell the PID to range between 0 and the full window size
-  //myPID.SetOutputLimits(0, WindowSize);
-  //initialize the variables we're linked to
-  Input = (double)getTemp();
-  //initialize the variables we're linked to
-  Setpoint = 100;
-  myEnc.write(Setpoint);
-  //turn the PID on
-  myPID.Start(Input,      // input
-              0,     // current output
-              Setpoint);  // setpoint
+  // установка макс. скорости в шагах/сек
+  stepper.setMaxSpeedDeg(3600);
+  // установка ускорения в шагах/сек/сек
+  stepper.setAcceleration(500);
+  // настраиваем прерывания с периодом, при котором 
+  // система сможет обеспечить максимальную скорость мотора.
+  // Для большей плавности лучше лучше взять период чуть меньше, например в два раза
+  Timer2.setPeriod(stepper.getMinPeriod() / 2);
+  // взводим прерывание
+  Timer2.enableISR();
+  stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
+ 
+  oled.init();              // инициализация
+  // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
+  Wire.setClock(400000L);   // макс. 800'000
+  oled.clear();
 
+  enc1.setType(TYPE1);
+  enc1.setPinMode(LOW_PULL);
 }
 
-
+// обработчик
+ISR(TIMER2_A) {
+  stepper.tick(); // тикаем тут
+}
 void loop() {
-  long newPosition = myEnc.read();
-  if (newPosition != oldPosition) {
-    oldPosition = newPosition;
-    LD.printString_12x16("S:      ", 0, 6);
-    LD.printNumber(newPosition, 0, 24, 6);
-    myPID.Start(Input,      // input
-                Output,     // current output
-                newPosition);  // setpoint
-  }
-  // Set the current position to 0:
-
-  // Run the motor forward at 200 steps/second until the motor reaches 400 steps (2 revolutions):
-  //while(stepper.currentPosition() != newPosition * 100) {
-  //  stepper.setSpeed(200);
-  //  stepper.runSpeed();
-  //}
- 
-  
-  float newTemp = getTemp();
-  if (newTemp != prevTemp) {
-    prevTemp = newTemp;
-    LD.printString_12x16("T:      ", 0, 0);
-    LD.printNumber(newTemp, 1, 24, 0);
-  }
-
-  Input = (double)newTemp;
-  Output = myPID.Run(Input);
-  analogWrite(heaterPin,Output);
-  
-  
-  //delay(100);
+    enc1.tick();
+    //stepper.tick();
+    if (runMotor) {    
+      stepper.setSpeedDeg(530, SMOOTH);        // в градусах/сек
+    } else {
+      stepper.stop();
+    }
+    if (enc1.isDouble()) runMotor = ! runMotor;
+    long newTargetTemp = targetTemp;
+    if (enc1.isRight()) newTargetTemp += 1;     // если был поворот направо, увеличиваем на 1
+    if (enc1.isLeft())  newTargetTemp -= 1;     // если был поворот налево, уменьшаем на 1
+    if (newTargetTemp != targetTemp) {
+      targetTemp = newTargetTemp;
+      oled.setScale(2);      
+      oled.home();
+      oled.println(newTargetTemp);
+    }
+    oled.setScale(2);
+    oled.setCursorXY(0, 32);
+    oled.println(stepper.getCurrentDeg() / 360);
 }
 
 float getTemp() {

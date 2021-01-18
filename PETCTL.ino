@@ -37,7 +37,7 @@ float targetTemp = 125;
 int samples[NUMSAMPLES];
 
 #include "GyverPID.h"
-GyverPID regulator(0.1, 0.05, 0.01, 10);
+GyverPID regulator(15, 3, 25, 500);
 
 boolean runMotor=false;
 long Speed = 530; // degree/sec

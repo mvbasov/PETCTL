@@ -18,7 +18,7 @@ Encoder enc1(CLK, DT, SW);
 int value = 0;
 
 // Termistor definition
-float prevTemp = 0;
+float prevTemp, curTemp = 0;
 float targetTemp = 125;
 
 // which analog pin to connect
@@ -36,9 +36,13 @@ float targetTemp = 125;
 #define SERIESRESISTOR 4700    
 int samples[NUMSAMPLES];
 
+#include "GyverPID.h"
+GyverPID regulator(0.1, 0.05, 0.01, 10);
+
 boolean runMotor=false;
 long Speed = 530; // degree/sec
 
+#define heaterPin 11
 boolean Heat = false;
 
 #define CHANGE_NO 0
@@ -47,7 +51,7 @@ boolean Heat = false;
 int whatToChange = CHANGE_NO;
 
 void setup() {
-  // установка макс. скорости в шагах/сек
+  // установка макс. скорости в градусах/сек
   stepper.setMaxSpeedDeg(3600);
   // установка ускорения в шагах/сек/сек
   stepper.setAcceleration(500);
@@ -66,6 +70,8 @@ void setup() {
 
   enc1.setType(TYPE1);
   enc1.setPinMode(LOW_PULL);
+
+  regulator.setpoint = targetTemp; 
 }
 
 // обработчик
@@ -78,16 +84,7 @@ void loop() {
     //stepper.tick();
 
     long newTargetTemp = targetTemp;
-    float curTemp = getTemp();
     long newSpeed = Speed;
-
-    if (curTemp != prevTemp) {
-      prevTemp = curTemp;
-      oled.setScale(2);      
-      oled.setCursorXY(0, 0);
-      oled.println(curTemp);   
-    }
-     
 
     if (enc1.isDouble()) whatToChange = CHANGE_SPEED;
     if (enc1.isSingle()) whatToChange = CHANGE_TEMPERATURE;
@@ -100,6 +97,7 @@ void loop() {
       if (enc1.isHolded()) Heat = ! Heat;
       if (newTargetTemp != targetTemp) {
         targetTemp = newTargetTemp;
+        regulator.setpoint = newTargetTemp;
         oled.setScale(2);      
         //oled.home();
         oled.setCursorXY(90, 0);
@@ -111,7 +109,7 @@ void loop() {
       if (enc1.isHolded()) {
         runMotor = ! runMotor;
         if (runMotor) {
-          stepper.setSpeedDeg(Speed, SMOOTH);        // в градусах/сек
+          stepper.setSpeedDeg(newSpeed, SMOOTH);        // в градусах/сек
         } else {
           stepper.stop();      
         }
@@ -127,6 +125,21 @@ void loop() {
       oled.setScale(2);
       oled.setCursorXY(0, 47);
       oled.println(stepper.getCurrentDeg() / 360);
+    }
+
+    curTemp = getTemp();
+    regulator.input = curTemp;
+    if (curTemp != prevTemp) {
+      prevTemp = curTemp;
+      oled.setScale(2);      
+      oled.setCursorXY(0, 0);
+      oled.println(curTemp);   
+    }
+         
+    if (Heat) {
+      analogWrite(heaterPin, regulator.getResultTimer());
+    } else {
+      analogWrite(heaterPin, 0);
     }
 }
 

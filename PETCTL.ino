@@ -13,14 +13,13 @@ GyverOLED<SSD1306_128x64, OLED_NO_BUFFER> oled;
 #define CLK 3
 #define DT 2
 #define SW 4
-
 #include "GyverEncoder.h"
 Encoder enc1(CLK, DT, SW);
 int value = 0;
 
 // Termistor definition
 float prevTemp = 0;
-long targetTemp = 25;
+float targetTemp = 125;
 
 // which analog pin to connect
 #define THERMISTORPIN A0         
@@ -35,8 +34,18 @@ long targetTemp = 25;
 #define BCOEFFICIENT 4388
 // the value of the 'other' resistor
 #define SERIESRESISTOR 4700    
-int samples[NUMSAMPLES];     
+int samples[NUMSAMPLES];
+
 boolean runMotor=false;
+long Speed = 530; // degree/sec
+
+boolean Heat = false;
+
+#define CHANGE_NO 0
+#define CHANGE_TEMPERATURE 1
+#define CHANGE_SPEED 2
+int whatToChange = CHANGE_NO;
+
 void setup() {
   // установка макс. скорости в шагах/сек
   stepper.setMaxSpeedDeg(3600);
@@ -63,27 +72,62 @@ void setup() {
 ISR(TIMER2_A) {
   stepper.tick(); // тикаем тут
 }
+
 void loop() {
     enc1.tick();
     //stepper.tick();
-    if (runMotor) {    
-      stepper.setSpeedDeg(530, SMOOTH);        // в градусах/сек
-    } else {
-      stepper.stop();
-    }
-    if (enc1.isDouble()) runMotor = ! runMotor;
+
     long newTargetTemp = targetTemp;
-    if (enc1.isRight()) newTargetTemp += 1;     // если был поворот направо, увеличиваем на 1
-    if (enc1.isLeft())  newTargetTemp -= 1;     // если был поворот налево, уменьшаем на 1
-    if (newTargetTemp != targetTemp) {
-      targetTemp = newTargetTemp;
+    float curTemp = getTemp();
+    long newSpeed = Speed;
+
+    if (curTemp != prevTemp) {
+      prevTemp = curTemp;
       oled.setScale(2);      
-      oled.home();
-      oled.println(newTargetTemp);
+      oled.setCursorXY(0, 0);
+      oled.println(curTemp);   
     }
-    oled.setScale(2);
-    oled.setCursorXY(0, 32);
-    oled.println(stepper.getCurrentDeg() / 360);
+     
+
+    if (enc1.isDouble()) whatToChange = CHANGE_SPEED;
+    if (enc1.isSingle()) whatToChange = CHANGE_TEMPERATURE;
+
+    if( whatToChange == CHANGE_TEMPERATURE) {
+      if (enc1.isRight()) newTargetTemp += 1;     // если был поворот направо, увеличиваем на 1
+      //if (enc1.isFastR()) newTargetTemp += 10;    // если был быстрый поворот направо, увеличиваем на 10
+      if (enc1.isLeft())  newTargetTemp -= 1;     // если был поворот налево, уменьшаем на 1
+      //if (enc1.isFastL()) newTargetTemp -= 10;    // если был быстрый поворот налево, уменьшаем на на 10
+      if (enc1.isHolded()) Heat = ! Heat;
+      if (newTargetTemp != targetTemp) {
+        targetTemp = newTargetTemp;
+        oled.setScale(2);      
+        //oled.home();
+        oled.setCursorXY(90, 0);
+        oled.println(newTargetTemp);
+      }
+    } else if (whatToChange == CHANGE_SPEED) {
+      if (enc1.isRight()) newSpeed += 1;     // если был поворот направо, увеличиваем на 1
+      if (enc1.isLeft())  newSpeed -= 1;     // если был поворот налево, уменьшаем на 1
+      if (enc1.isHolded()) {
+        runMotor = ! runMotor;
+        if (runMotor) {
+          stepper.setSpeedDeg(Speed, SMOOTH);        // в градусах/сек
+        } else {
+          stepper.stop();      
+        }
+      }
+      if (newSpeed != Speed) {
+        Speed = newSpeed;
+        oled.setScale(2);      
+        oled.setCursorXY(0, 23);
+        oled.println(newSpeed);
+      }
+    }
+    if (runMotor) {
+      oled.setScale(2);
+      oled.setCursorXY(0, 47);
+      oled.println(stepper.getCurrentDeg() / 360);
+    }
 }
 
 float getTemp() {

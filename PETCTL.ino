@@ -1,9 +1,12 @@
 #include "GyverStepper.h"
-GStepper<STEPPER2WIRE> stepper(200, 6, 5, 1);
+int stepDiv = 4; // DRV8825: 1/4 MS0=0, MS1=1, MS2=0
+GStepper<STEPPER2WIRE> stepper(200 * stepDiv, 6, 5, 1);
 // 6 - STEP
 // 5 - DIR
 // 1 - EN
 #include "GyverTimers.h"
+// Reductor constant ~ 4.69624E-6 (139 - gear ratio, 235 - bobin round length)
+const float REDCONST = 235.0 /(360 * 139.0 * 1000);
 
 #include "GyverOLED.h"
 // попробуй с буфером и без
@@ -19,7 +22,7 @@ int value = 0;
 
 // Termistor definition
 float prevTemp, curTemp = 0;
-float targetTemp = 125;
+float targetTemp = 180;
 
 // which analog pin to connect
 #define THERMISTORPIN A0         
@@ -29,7 +32,7 @@ float targetTemp = 125;
 #define TEMPERATURENOMINAL 25   
 // how many samples to take and average, more takes longer
 // but is more 'smooth'
-#define NUMSAMPLES 5
+#define NUMSAMPLES 10
 // The beta coefficient of the thermistor (usually 3000-4000)
 #define BCOEFFICIENT 4388
 // the value of the 'other' resistor
@@ -37,12 +40,12 @@ float targetTemp = 125;
 int samples[NUMSAMPLES];
 
 #include "GyverPID.h"
-GyverPID regulator(15, 3, 25, 500);
+GyverPID regulator(14, 0.93, 59.87, 200);
 
 boolean runMotor=false;
 long Speed = 530; // degree/sec
 
-#define heaterPin 11
+#define heaterPin 9
 boolean Heat = false;
 
 #define CHANGE_NO 0
@@ -54,7 +57,7 @@ void setup() {
   // установка макс. скорости в градусах/сек
   stepper.setMaxSpeedDeg(3600);
   // установка ускорения в шагах/сек/сек
-  stepper.setAcceleration(500);
+  stepper.setAcceleration(300);
   // настраиваем прерывания с периодом, при котором 
   // система сможет обеспечить максимальную скорость мотора.
   // Для большей плавности лучше лучше взять период чуть меньше, например в два раза
@@ -71,12 +74,16 @@ void setup() {
   enc1.setType(TYPE1);
   enc1.setPinMode(LOW_PULL);
 
-  regulator.setpoint = targetTemp; 
+  regulator.setpoint = targetTemp;
+  printSpeed(Speed);
+  printTargetTemp(targetTemp);
+  printMilage(0.0);
 }
 
 // обработчик
 ISR(TIMER2_A) {
   stepper.tick(); // тикаем тут
+  enc1.tick();
 }
 
 void loop() {
@@ -91,17 +98,21 @@ void loop() {
 
     if( whatToChange == CHANGE_TEMPERATURE) {
       if (enc1.isRight()) newTargetTemp += 1;     // если был поворот направо, увеличиваем на 1
-      //if (enc1.isFastR()) newTargetTemp += 10;    // если был быстрый поворот направо, увеличиваем на 10
+      if (enc1.isFastR()) newTargetTemp += 10;    // если был быстрый поворот направо, увеличиваем на 10
       if (enc1.isLeft())  newTargetTemp -= 1;     // если был поворот налево, уменьшаем на 1
-      //if (enc1.isFastL()) newTargetTemp -= 10;    // если был быстрый поворот налево, уменьшаем на на 10
-      if (enc1.isHolded()) Heat = ! Heat;
+      if (enc1.isFastL()) newTargetTemp -= 10;    // если был быстрый поворот налево, уменьшаем на на 10
+      if (enc1.isHolded()){
+        Heat = ! Heat;
+        oled.setCursorXY(0, 0);
+        if(Heat) 
+          oled.println("*");
+        else
+          oled.println(".");
+      }
       if (newTargetTemp != targetTemp) {
         targetTemp = newTargetTemp;
         regulator.setpoint = newTargetTemp;
-        oled.setScale(2);      
-        //oled.home();
-        oled.setCursorXY(90, 0);
-        oled.println(newTargetTemp);
+        printTargetTemp(newTargetTemp);
       }
     } else if (whatToChange == CHANGE_SPEED) {
       if (enc1.isRight()) newSpeed += 1;     // если был поворот направо, увеличиваем на 1
@@ -110,30 +121,28 @@ void loop() {
         runMotor = ! runMotor;
         if (runMotor) {
           stepper.setSpeedDeg(newSpeed, SMOOTH);        // в градусах/сек
+          oled.setCursorXY(0, 23);
+          oled.println("*");
         } else {
           stepper.stop();      
+          oled.setCursorXY(0, 23);
+          oled.println(".");
         }
       }
       if (newSpeed != Speed) {
         Speed = newSpeed;
-        oled.setScale(2);      
-        oled.setCursorXY(0, 23);
-        oled.println(newSpeed);
+        printSpeed(newSpeed);
       }
     }
     if (runMotor) {
-      oled.setScale(2);
-      oled.setCursorXY(0, 47);
-      oled.println(stepper.getCurrentDeg() / 360);
+      printMilage(stepper.getCurrentDeg() / 360);
     }
 
     curTemp = getTemp();
     regulator.input = curTemp;
     if (curTemp != prevTemp) {
       prevTemp = curTemp;
-      oled.setScale(2);      
-      oled.setCursorXY(0, 0);
-      oled.println(curTemp);   
+      printCurrentTemp(curTemp);
     }
          
     if (Heat) {
@@ -141,6 +150,31 @@ void loop() {
     } else {
       analogWrite(heaterPin, 0);
     }
+}
+
+void printTargetTemp(float t){
+      oled.setScale(2);      
+      //oled.home();
+      oled.setCursorXY(88, 0);
+      oled.println((int)t);  
+}
+
+void printCurrentTemp(float t) {
+      oled.setScale(2);      
+      oled.setCursorXY(12, 0);
+      oled.println(t, 1);   
+}
+
+void printSpeed(long s){
+      oled.setScale(2);      
+      oled.setCursorXY(12, 23);
+      oled.println(s * REDCONST * 1000);  
+}
+
+void printMilage(float m){
+      oled.setScale(2);
+      oled.setCursorXY(12, 47);
+      oled.println(stepper.getCurrentDeg() * REDCONST);  
 }
 
 float getTemp() {

@@ -116,7 +116,9 @@ void loop() {
       }
     } else if (whatToChange == CHANGE_SPEED) {
       if (enc1.isRight()) newSpeed += 1;     // если был поворот направо, увеличиваем на 1
+      if (enc1.isFastR()) newSpeed += 10;    // если был быстрый поворот направо, увеличиваем на 10
       if (enc1.isLeft())  newSpeed -= 1;     // если был поворот налево, уменьшаем на 1
+      if (enc1.isFastL()) newSpeed -= 10;    // если был быстрый поворот налево, уменьшаем на на 10
       if (enc1.isHolded()) {
         runMotor = ! runMotor;
         if (runMotor) {
@@ -131,6 +133,7 @@ void loop() {
       }
       if (newSpeed != Speed) {
         Speed = newSpeed;
+        if (runMotor) stepper.setSpeedDeg(newSpeed, SMOOTH);        // в градусах/сек
         printSpeed(newSpeed);
       }
     }

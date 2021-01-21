@@ -1,3 +1,4 @@
+//#define SERIAL_DEBUG
 #include "GyverStepper.h"
 int stepDiv = 4; // DRV8825: 1/4 MS0=0, MS1=1, MS2=0
 GStepper<STEPPER2WIRE> stepper(200 * stepDiv, 6, 5, 1);
@@ -5,7 +6,7 @@ GStepper<STEPPER2WIRE> stepper(200 * stepDiv, 6, 5, 1);
 // 5 - DIR
 // 1 - EN
 #include "GyverTimers.h"
-// Reductor constant ~ 4.69624E-6 (139 - gear ratio, 235 - bobin round length)
+// Reductor constant ~ 4.69624E-6 (139 - gear ratio, 232.5 - bobin round length)
 const float REDCONST = 232.5 /(360 * 139.0 * 1000);
 
 #include "GyverOLED.h"
@@ -43,7 +44,7 @@ int samples[NUMSAMPLES];
 GyverPID regulator(14, 0.93, 59.87, 200);
 
 boolean runMotor=false;
-long Speed = 530; // degree/sec
+long Speed = 537; // degree/sec
 
 #define heaterPin 9
 boolean Heat = false;
@@ -54,11 +55,16 @@ boolean Heat = false;
 int whatToChange = CHANGE_NO;
 unsigned long interactive = millis();
 
+void encRotationToValue (long* value, int inc = 1);
+
 void setup() {
+#if defined(SERIAL_DEBUG)
+  Serial.begin(9600);
+#endif //SERIAL_DEBUG
   // установка макс. скорости в градусах/сек
   stepper.setMaxSpeedDeg(3600);
   // установка ускорения в шагах/сек/сек
-  stepper.setAcceleration(300);
+  stepper.setAcceleration(200);
   // настраиваем прерывания с периодом, при котором 
   // система сможет обеспечить максимальную скорость мотора.
   // Для большей плавности лучше лучше взять период чуть меньше, например в два раза
@@ -71,6 +77,13 @@ void setup() {
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
   Wire.setClock(400000L);   // макс. 800'000
   oled.clear();
+  oled.setScale(1);
+  oled.setCursorXY(70,5);
+  oled.println("*C");
+  oled.setCursorXY(70,5+5+16);
+  oled.println("mm/s");
+  oled.setCursorXY(78,5+5+5+5+32);
+  oled.println("m");
 
   enc1.setType(TYPE1);
   enc1.setPinMode(LOW_PULL);
@@ -129,7 +142,7 @@ void loop() {
         printTargetTemp(newTargetTemp);
       }
     } else if (whatToChange == CHANGE_SPEED) {
-      encRotationToValue(&newSpeed);
+      encRotationToValue(&newSpeed, 2);
       if (enc1.isHolded()) {
         runMotor = ! runMotor;
         if (runMotor) {
@@ -159,19 +172,34 @@ void loop() {
       prevTemp = curTemp;
       printCurrentTemp(curTemp);
     }
-         
+#if defined(SERIAL_DEBUG)
+    Serial.print(curTemp);
+#endif //end SERIAL_DEBUG
     if (Heat) {
-      analogWrite(heaterPin, regulator.getResultTimer());
+      int pidOut = (int) constrain(regulator.getResultTimer(), 0, 255);
+      analogWrite(heaterPin, pidOut);
+#if defined(SERIAL_DEBUG)
+      Serial.print(' ');
+      Serial.print(pidOut);
+#endif //end SERIAL_DEBUG
     } else {
       analogWrite(heaterPin, 0);
+#if defined(SERIAL_DEBUG)
+      Serial.print(' ');
+      Serial.print(0);
+#endif //end SERIAL_DEBUG
     }
+#ifdef SERIAL_DEBUG
+    Serial.println(' ');
+#endif //end SERIAL_DEBUG
+    
 }
 
-void encRotationToValue (long* value) {
-      if (enc1.isRight()) { *value += 1; interactiveSet(); }     // если был поворот направо, увеличиваем на 1
-      if (enc1.isFastR()) { *value += 10; interactiveSet(); }    // если был быстрый поворот направо, увеличиваем на 10
-      if (enc1.isLeft())  { *value -= 1; interactiveSet(); }     // если был поворот налево, уменьшаем на 1
-      if (enc1.isFastL()) { *value -= 10; interactiveSet(); }    // если был быстрый поворот налево, уменьшаем на на 10
+void encRotationToValue (long* value, int inc = 1) {
+      if (enc1.isRight()) { *value += inc; interactiveSet(); }     // если был поворот направо, увеличиваем на 1
+      if (enc1.isFastR()) { *value += inc * 5; interactiveSet(); }    // если был быстрый поворот направо, увеличиваем на 10
+      if (enc1.isLeft())  { *value -= inc; interactiveSet(); }     // если был поворот налево, уменьшаем на 1
+      if (enc1.isFastL()) { *value -= inc * 5; interactiveSet(); }    // если был быстрый поворот налево, уменьшаем на на 10
 }
 
 void printTargetTemp(float t){
@@ -193,7 +221,7 @@ void printSpeed(long s){
       oled.setScale(2);      
       oled.setCursorXY(12, 23);
       if(whatToChange == CHANGE_SPEED)  oled.invertText(true);
-      oled.println(s * REDCONST * 1000);  
+      oled.println(s * REDCONST * 1000,2);  
       oled.invertText(false);
 }
 

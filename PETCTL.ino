@@ -6,7 +6,7 @@ GStepper<STEPPER2WIRE> stepper(200 * stepDiv, 6, 5, 1);
 // 1 - EN
 #include "GyverTimers.h"
 // Reductor constant ~ 4.69624E-6 (139 - gear ratio, 235 - bobin round length)
-const float REDCONST = 235.0 /(360 * 139.0 * 1000);
+const float REDCONST = 232.5 /(360 * 139.0 * 1000);
 
 #include "GyverOLED.h"
 // попробуй с буфером и без

@@ -52,6 +52,7 @@ boolean Heat = false;
 #define CHANGE_TEMPERATURE 1
 #define CHANGE_SPEED 2
 int whatToChange = CHANGE_NO;
+unsigned long interactive = millis();
 
 void setup() {
   // установка макс. скорости в градусах/сек
@@ -93,14 +94,26 @@ void loop() {
     long newTargetTemp = targetTemp;
     long newSpeed = Speed;
 
-    if (enc1.isDouble()) whatToChange = CHANGE_SPEED;
-    if (enc1.isSingle()) whatToChange = CHANGE_TEMPERATURE;
+    if (enc1.isDouble()) {
+      whatToChange = CHANGE_SPEED;
+      interactiveSet();
+      printTargetTemp(targetTemp); // to clear selection
+      printSpeed(Speed);
+    }
+    if (enc1.isSingle()) {
+      whatToChange = CHANGE_TEMPERATURE;
+      interactiveSet();
+      printSpeed(Speed); // to clear selection
+      printTargetTemp(targetTemp);
+    }
+    if (!isInteractive()) {
+      whatToChange = CHANGE_NO;
+      printSpeed(Speed); // to clear selection
+      printTargetTemp(targetTemp);
+    }
 
     if( whatToChange == CHANGE_TEMPERATURE) {
-      if (enc1.isRight()) newTargetTemp += 1;     // если был поворот направо, увеличиваем на 1
-      if (enc1.isFastR()) newTargetTemp += 10;    // если был быстрый поворот направо, увеличиваем на 10
-      if (enc1.isLeft())  newTargetTemp -= 1;     // если был поворот налево, уменьшаем на 1
-      if (enc1.isFastL()) newTargetTemp -= 10;    // если был быстрый поворот налево, уменьшаем на на 10
+      encRotationToValue(&newTargetTemp);
       if (enc1.isHolded()){
         Heat = ! Heat;
         oled.setCursorXY(0, 0);
@@ -109,16 +122,14 @@ void loop() {
         else
           oled.println(".");
       }
+
       if (newTargetTemp != targetTemp) {
         targetTemp = newTargetTemp;
         regulator.setpoint = newTargetTemp;
         printTargetTemp(newTargetTemp);
       }
     } else if (whatToChange == CHANGE_SPEED) {
-      if (enc1.isRight()) newSpeed += 1;     // если был поворот направо, увеличиваем на 1
-      if (enc1.isFastR()) newSpeed += 10;    // если был быстрый поворот направо, увеличиваем на 10
-      if (enc1.isLeft())  newSpeed -= 1;     // если был поворот налево, уменьшаем на 1
-      if (enc1.isFastL()) newSpeed -= 10;    // если был быстрый поворот налево, уменьшаем на на 10
+      encRotationToValue(&newSpeed);
       if (enc1.isHolded()) {
         runMotor = ! runMotor;
         if (runMotor) {
@@ -130,6 +141,7 @@ void loop() {
           oled.setCursorXY(0, 23);
           oled.println(".");
         }
+        interactiveSet();
       }
       if (newSpeed != Speed) {
         Speed = newSpeed;
@@ -155,11 +167,20 @@ void loop() {
     }
 }
 
+void encRotationToValue (long* value) {
+      if (enc1.isRight()) { *value += 1; interactiveSet(); }     // если был поворот направо, увеличиваем на 1
+      if (enc1.isFastR()) { *value += 10; interactiveSet(); }    // если был быстрый поворот направо, увеличиваем на 10
+      if (enc1.isLeft())  { *value -= 1; interactiveSet(); }     // если был поворот налево, уменьшаем на 1
+      if (enc1.isFastL()) { *value -= 10; interactiveSet(); }    // если был быстрый поворот налево, уменьшаем на на 10
+}
+
 void printTargetTemp(float t){
       oled.setScale(2);      
       //oled.home();
+      if(whatToChange == CHANGE_TEMPERATURE)  oled.invertText(true);
       oled.setCursorXY(88, 0);
       oled.println((int)t);  
+      oled.invertText(false);
 }
 
 void printCurrentTemp(float t) {
@@ -171,13 +192,23 @@ void printCurrentTemp(float t) {
 void printSpeed(long s){
       oled.setScale(2);      
       oled.setCursorXY(12, 23);
+      if(whatToChange == CHANGE_SPEED)  oled.invertText(true);
       oled.println(s * REDCONST * 1000);  
+      oled.invertText(false);
 }
 
 void printMilage(float m){
       oled.setScale(2);
       oled.setCursorXY(12, 47);
       oled.println(stepper.getCurrentDeg() * REDCONST);  
+}
+
+void interactiveSet() {
+  interactive = millis() + 15000;
+}
+
+boolean isInteractive() {
+  return millis() < interactive;
 }
 
 float getTemp() {

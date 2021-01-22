@@ -78,7 +78,7 @@ void setup() {
   Wire.setClock(400000L);   // макс. 800'000
   oled.clear();
   oled.setScale(1);
-  oled.setCursorXY(70,5);
+  oled.setCursorXY(74,5);
   oled.println("*C");
   oled.setCursorXY(70,5+5+16);
   oled.println("mm/s");

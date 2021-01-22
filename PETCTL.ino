@@ -163,7 +163,7 @@ void loop() {
       }
     }
     if (runMotor) {
-      printMilage(stepper.getCurrentDeg() / 360);
+      printMilage(stepper.getCurrentDeg());
     }
 
     curTemp = getTemp();
@@ -228,7 +228,7 @@ void printSpeed(long s){
 void printMilage(float m){
       oled.setScale(2);
       oled.setCursorXY(12, 47);
-      oled.println(stepper.getCurrentDeg() * REDCONST);  
+      oled.println(m * REDCONST);  
 }
 
 void interactiveSet() {

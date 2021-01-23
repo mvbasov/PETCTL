@@ -6,8 +6,12 @@ GStepper<STEPPER2WIRE> stepper(200 * stepDiv, 6, 5, 1);
 // 5 - DIR
 // 1 - EN
 #include "GyverTimers.h"
-// Reductor constant ~ 4.69624E-6 (139 - gear ratio, 232.5 - bobin round length)
-const float REDCONST = 232.5 /(360 * 139.0 * 1000);
+// Reductor constant ~ 4.69624E-6 m/deg
+// 139.21875 - gear ratio
+// ((36/8) * (36/8) * (55/8)) = 139.21875
+// 232.478 - bobin round length
+// 74 * Pi = 232.478
+const float REDCONST = 232.478 /(360 * 139.21875 * 1000);
 
 #include "GyverOLED.h"
 // попробуй с буфером и без
@@ -204,7 +208,6 @@ void encRotationToValue (long* value, int inc = 1) {
 
 void printTargetTemp(float t){
       oled.setScale(2);      
-      //oled.home();
       if(whatToChange == CHANGE_TEMPERATURE)  oled.invertText(true);
       oled.setCursorXY(88, 0);
       oled.println((int)t);  
@@ -218,6 +221,8 @@ void printCurrentTemp(float t) {
 }
 
 void printSpeed(long s){
+      // s - speed in degree per second
+      // pint in mm/s
       oled.setScale(2);      
       oled.setCursorXY(12, 23);
       if(whatToChange == CHANGE_SPEED)  oled.invertText(true);
@@ -226,6 +231,8 @@ void printSpeed(long s){
 }
 
 void printMilage(float m){
+      // m - current stepper position in degree
+      // output to display in meters
       oled.setScale(2);
       oled.setCursorXY(12, 47);
       oled.println(m * REDCONST);  

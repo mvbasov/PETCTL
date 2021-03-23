@@ -1,17 +1,17 @@
 //#define SERIAL_DEBUG
 #include "GyverStepper.h"
-int stepDiv = 4; // DRV8825: 1/4 MS0=0, MS1=1, MS2=0
-GStepper<STEPPER2WIRE> stepper(200 * stepDiv, 6, 5, 1);
+int stepDiv = 8; // DRV8825: 1/4 MS0=0, MS1=1, MS2=0  TMC2225- 8 MS1+
+GStepper<STEPPER2WIRE> stepper(200 * stepDiv, 6, 5, 7);
 // 6 - STEP
 // 5 - DIR
-// 1 - EN
+// 7 - EN
 #include "GyverTimers.h"
 // Reductor constant ~ 4.69624E-6 m/deg
 // 139.21875 - gear ratio
 // ((36/8) * (36/8) * (55/8)) = 139.21875
 // 232.478 - bobin round length
 // 74 * Pi = 232.478
-const float REDCONST = 232.478 /(360 * 139.21875 * 1000);
+const float REDCONST = 232.478 /(360 * 30.9375 * 1000);
 
 #include "GyverOLED.h"
 // попробуй с буфером и без
@@ -45,10 +45,10 @@ float targetTemp = 180;
 int samples[NUMSAMPLES];
 
 #include "GyverPID.h"
-GyverPID regulator(14, 0.93, 59.87, 200);
+GyverPID regulator(38.62, 1.89, 197.71, 300);
 
 boolean runMotor=false;
-long Speed = 537; // degree/sec
+long Speed = 316; // degree/sec
 
 #define heaterPin 9
 boolean Heat = false;
@@ -82,12 +82,21 @@ void setup() {
   Wire.setClock(400000L);   // макс. 800'000
   oled.clear();
   oled.setScale(1);
-  oled.setCursorXY(74,5);
-  oled.println("*C");
-  oled.setCursorXY(70,5+5+16);
-  oled.println("mm/s");
-  oled.setCursorXY(78,5+5+5+5+32);
-  oled.println("m");
+  oled.setCursorXY(73,4); //65
+  oled.println(">");
+  oled.setCursorXY(78,5+5+5+5+11);
+  oled.println("ММ/С");
+  oled.setCursorXY(78,5+5+5+5+34);
+  oled.println("МЕТРОВ");
+
+  oled.setCursorXY(0,16);
+  oled.println("---------------------");
+
+  oled.setCursorXY(115,0);
+  oled.println("o");
+  
+  oled.setCursorXY(120,7);
+  oled.println("C");
 
   enc1.setType(TYPE1);
   enc1.setPinMode(LOW_PULL);
@@ -151,11 +160,11 @@ void loop() {
         runMotor = ! runMotor;
         if (runMotor) {
           stepper.setSpeedDeg(newSpeed, SMOOTH);        // в градусах/сек
-          oled.setCursorXY(0, 23);
+          oled.setCursorXY(0, 24);
           oled.println("*");
         } else {
           stepper.stop();      
-          oled.setCursorXY(0, 23);
+          oled.setCursorXY(0, 24);
           oled.println(".");
         }
         interactiveSet();
@@ -209,22 +218,22 @@ void encRotationToValue (long* value, int inc = 1) {
 void printTargetTemp(float t){
       oled.setScale(2);      
       if(whatToChange == CHANGE_TEMPERATURE)  oled.invertText(true);
-      oled.setCursorXY(88, 0);
+      oled.setCursorXY(79, 0);
       oled.println((int)t);  
       oled.invertText(false);
 }
 
 void printCurrentTemp(float t) {
-      oled.setScale(2);      
+      oled.setScale(2);    
       oled.setCursorXY(12, 0);
-      oled.println(t, 1);   
+      oled.println(t, 1);
 }
 
 void printSpeed(long s){
       // s - speed in degree per second
       // pint in mm/s
       oled.setScale(2);      
-      oled.setCursorXY(12, 23);
+      oled.setCursorXY(12, 24);
       if(whatToChange == CHANGE_SPEED)  oled.invertText(true);
       oled.println(s * REDCONST * 1000,2);  
       oled.invertText(false);

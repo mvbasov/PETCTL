@@ -29,7 +29,7 @@
 /* Which pin endstop connected to */
 #define CFG_ENDSTOP_PIN 8
 /* Extra length to pull after end stop triggered [m] */
-#define CFG_PULL_EXTRA_LENGTH 0.15
+#define CFG_PULL_EXTRA_LENGTH 0.07
 /* PID regulator coefficients */
 #define CFG_PID_P 14
 #define CFG_PID_I 0.93

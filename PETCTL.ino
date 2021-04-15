@@ -48,14 +48,15 @@ Reductor constant ~ 4.69624E-6 m/deg (length to stepper rotation degree)
  ((36/8) * (55/8)) = 30.9375
  30.9375 - gear ratio for Zneipas reductor
 */
-#define GEAR_RATIO CFG_RED_G1 * CFG_RED_G2 * CFG_RED_G3
+#define GEAR_RATIO (float)(CFG_RED_G1 * CFG_RED_G2 * CFG_RED_G3)
 /*
 Bobin round length
  74 * Pi = 232.478
  232.478 mm - bobin round length
 */
-#define BOBIN_ROUND_LENGTH 3.1415926 * CFG_BOBIN_DIAM
+#define BOBIN_ROUND_LENGTH (float)(3.1415926 * CFG_BOBIN_DIAM)
 const float REDCONST = BOBIN_ROUND_LENGTH /(360 * GEAR_RATIO * 1000);
+//const float REDCONST = 32.478 /(360 * 139.21875 * 1000);
 boolean runMotor=false;
 long Speed = CFG_SPEED_INIT/(REDCONST * 1000); // 539 degree/sec for 2.5 mm/s speed
 

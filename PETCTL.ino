@@ -89,6 +89,18 @@ void setup() {
   oled.init();              // инициализация
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
   Wire.setClock(400000L);   // макс. 800'000
+  
+ //заставка
+  oled.clear();
+  oled.setScale(3);
+  oled.setCursor(13, 2);
+  oled.println("PETCTL");
+  oled.setScale(1);
+  oled.setCursor(95, 7);
+  oled.print("V 0.5");
+  delay(4000);
+  //
+ 
   oled.clear();
   oled.setScale(1);
   oled.setCursorXY(74,5);

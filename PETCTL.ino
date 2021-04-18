@@ -1,57 +1,53 @@
-//#define SERIAL_DEBUG
+#include "PETCTL_cfg.h"
 #include "GyverStepper.h"
-int stepDiv = 8; // DRV8825: 1/4 MS0=0, MS1=1, MS2=0  TMC2225- 8 MS1+
-GStepper<STEPPER2WIRE> stepper(200 * stepDiv, 6, 5, 7);
-// 6 - STEP
-// 5 - DIR
-// 7 - EN
+GStepper<STEPPER2WIRE> stepper(200 * CFG_STEP_DIV, CFG_STEP_STEP_PIN, CFG_STEP_DIR_PIN, CFG_STEP_EN_PIN);
 #include "GyverTimers.h"
-// Reductor constant ~ 4.69624E-6 m/deg
-// 139.21875 - gear ratio
-// ((36/8) * (36/8) * (55/8)) = 139.21875
-// 232.478 - bobin round length
-// 74 * Pi = 232.478
-const float REDCONST = 232.478 /(360 * 30.9375 * 1000);
+
 
 #include "GyverOLED.h"
-// попробуй с буфером и без
 GyverOLED<SSD1306_128x64, OLED_NO_BUFFER> oled;
-// можно передать адрес: GyverOLED oled(0x3C);
 
-#define CLK 3
-#define DT 2
-#define SW 4
+
+#define CLK CFG_ENC_CLK
+#define DT CFG_ENC_DT
+#define SW CFG_ENC_SW
 #include "GyverEncoder.h"
 Encoder enc1(CLK, DT, SW);
 int value = 0;
 
 // Termistor definition
 float prevTemp, curTemp = 0;
-float targetTemp = 180;
+float targetTemp = CFG_TEMP_INIT;
 
 // which analog pin to connect
-#define THERMISTORPIN A0         
+#define THERMISTORPIN CFG_TERM_PIN         
 // resistance at 25 degrees C
 #define THERMISTORNOMINAL 100000      
 // temp. for nominal resistance (almost always 25 C)
-#define TEMPERATURENOMINAL 25   
-// how many samples to take and average, more takes longer
-// but is more 'smooth'
-#define NUMSAMPLES 10
+#define TEMPERATURENOMINAL CFG_TERM_VALUE_TEMP   
 // The beta coefficient of the thermistor (usually 3000-4000)
-#define BCOEFFICIENT 4388
+#define BCOEFFICIENT CFG_TERM_B_COEFF
 // the value of the 'other' resistor
-#define SERIESRESISTOR 4700    
-int samples[NUMSAMPLES];
+#define SERIESRESISTOR CFG_TERM_SERIAL_R    
+
+// End stop pin
+#define ENDSTOP CFG_ENDSTOP_PIN
+// Extra length to pull after end stop triggered (in m)
+#define EXTRA_LENGTH CFG_PULL_EXTRA_LENGTH
+float finalLength = 0;
 
 #include "GyverPID.h"
-GyverPID regulator(38.62, 1.89, 197.71, 300);
+GyverPID regulator(CFG_PID_P, CFG_PID_I, CFG_PID_D, 200);
 
-boolean runMotor=false;
-long Speed = 316; // degree/sec
-
-#define heaterPin 9
+#define HEATER_PIN CFG_HEATER_PIN
 boolean Heat = false;
+
+#define GEAR_RATIO ((float)CFG_RED_G1 * (float)CFG_RED_G2 * (float)CFG_RED_G3)
+#define BOBIN_ROUND_LENGTH ((float)3.1415926 * (float)CFG_BOBIN_DIAM)
+const float REDCONST = BOBIN_ROUND_LENGTH /(360 * GEAR_RATIO * 1000);
+//const float REDCONST = 232.478 /(360 * 139.21875 * 1000);
+boolean runMotor=false;
+long Speed = (float)CFG_SPEED_INIT/(REDCONST * 1000); // 539 degree/sec for 2.5 mm/s speed
 
 #define CHANGE_NO 0
 #define CHANGE_TEMPERATURE 1
@@ -65,6 +61,7 @@ void setup() {
 #if defined(SERIAL_DEBUG)
   Serial.begin(9600);
 #endif //SERIAL_DEBUG
+  pinMode(ENDSTOP, INPUT_PULLUP);
   // установка макс. скорости в градусах/сек
   stepper.setMaxSpeedDeg(3600);
   // установка ускорения в шагах/сек/сек
@@ -76,21 +73,29 @@ void setup() {
   // взводим прерывание
   Timer2.enableISR();
   stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
+  stepper.reverse(false);            // reverse direction
  
   oled.init();              // инициализация
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
   Wire.setClock(400000L);   // макс. 800'000
+ { oled.clear();
+  oled.setScale(3);
+  oled.setCursor(13, 2);
+  oled.println("PETCTL");
+  oled.setScale(1);
+  oled.setCursor(95, 7);
+  oled.print("V 0.5");
+  delay(4000);
+ }
+ 
   oled.clear();
   oled.setScale(1);
   oled.setCursorXY(73,4); //65
   oled.println(">");
-  oled.setCursorXY(78,5+5+5+5+11);
-  oled.println("ММ/С");
-  oled.setCursorXY(78,5+5+5+5+34);
-  oled.println("МЕТРОВ");
-
-  oled.setCursorXY(0,16);
-  oled.println("---------------------");
+  oled.setCursorXY(78,31);
+  oled.println("MM/C");
+  oled.setCursorXY(78,54);
+  oled.println("М");
 
   oled.setCursorXY(115,0);
   oled.println("o");
@@ -119,6 +124,7 @@ void loop() {
 
     long newTargetTemp = targetTemp;
     long newSpeed = Speed;
+    float rest;
 
     if (enc1.isDouble()) {
       whatToChange = CHANGE_SPEED;
@@ -159,19 +165,16 @@ void loop() {
       if (enc1.isHolded()) {
         runMotor = ! runMotor;
         if (runMotor) {
-          stepper.setSpeedDeg(newSpeed, SMOOTH);        // в градусах/сек
-          oled.setCursorXY(0, 24);
-          oled.println("*");
+          motorCTL(newSpeed);
         } else {
-          stepper.stop();      
-          oled.setCursorXY(0, 24);
-          oled.println(".");
+          motorCTL(0);
+          runMotor = false;
         }
         interactiveSet();
       }
       if (newSpeed != Speed) {
         Speed = newSpeed;
-        if (runMotor) stepper.setSpeedDeg(newSpeed, SMOOTH);        // в градусах/сек
+        if (runMotor) stepper.setSpeedDeg(newSpeed, SMOOTH);        // в градусах/сек 
         printSpeed(newSpeed);
       }
     }
@@ -190,13 +193,13 @@ void loop() {
 #endif //end SERIAL_DEBUG
     if (Heat) {
       int pidOut = (int) constrain(regulator.getResultTimer(), 0, 255);
-      analogWrite(heaterPin, pidOut);
+      analogWrite(HEATER_PIN, pidOut);
 #if defined(SERIAL_DEBUG)
       Serial.print(' ');
       Serial.print(pidOut);
 #endif //end SERIAL_DEBUG
     } else {
-      analogWrite(heaterPin, 0);
+      analogWrite(HEATER_PIN, 0);
 #if defined(SERIAL_DEBUG)
       Serial.print(' ');
       Serial.print(0);
@@ -205,7 +208,58 @@ void loop() {
 #ifdef SERIAL_DEBUG
     Serial.println(' ');
 #endif //end SERIAL_DEBUG
-    
+    oled.setCursorXY(90, 47);
+    if(!digitalRead(ENDSTOP)) {
+      if(!runMotor) {
+        oled.setScale(2);
+        oled.println("  *");
+      } else {
+        if (finalLength > 0){
+          rest = finalLength - getMilage();
+          if (rest >= 0) {
+            oled.setScale(1);
+            oled.setCursorXY(90, 55);
+            oled.println(rest*100,1); // rest in cm
+          } else {
+            runMotor = false;
+            motorCTL(0);
+            Heat = false;
+            printHeaterStatus(Heat);
+            finalLength = 0;
+          }
+        } else {
+          finalLength = getMilage() + EXTRA_LENGTH;
+        }
+      }
+    } else {
+      oled.setScale(2);
+      oled.println("   ");
+      finalLength = 0;
+    }
+}
+ 
+float getMilage() {
+  return stepper.getCurrentDeg() * REDCONST;
+}
+
+void motorCTL(long setSpeed) {
+  if (setSpeed != 0) {
+    stepper.setSpeedDeg(setSpeed, SMOOTH);        // [degree/sec]
+    oled.setCursorXY(0, 23);
+    oled.println("*");
+  } else {
+    stepper.stop();  
+    oled.setCursorXY(0, 23);
+    oled.println(".");
+  }
+}
+
+void printHeaterStatus(boolean status) {
+  oled.setCursorXY(0, 0);
+  if(status) 
+    oled.println("*");
+  else
+    oled.println(".");
 }
 
 void encRotationToValue (long* value, int inc = 1) {
@@ -258,25 +312,13 @@ boolean isInteractive() {
 float getTemp() {
   uint8_t i;
   float average;
- 
-  // take N samples in a row, with a slight delay
-  for (i=0; i< NUMSAMPLES; i++) {
-   samples[i] = analogRead(THERMISTORPIN);
-   delay(10);
-  }
-  
-  // average all the samples out
-  average = 0;
-  for (i=0; i< NUMSAMPLES; i++) {
-     average += samples[i];
-  }
-  average /= NUMSAMPLES;
- 
+
+  average = analogRead(THERMISTORPIN);
   // convert the value to resistance
   average = 1023 / average - 1;
   average = SERIESRESISTOR / average;
-  //Serial.print("Thermistor resistance "); 
-  //Serial.println(average);
+//Serial.print("Thermistor resistance "); 
+//Serial.println(average);
   
   float steinhart;
   steinhart = average / THERMISTORNOMINAL;     // (R/Ro)
@@ -292,8 +334,10 @@ float getTemp() {
 // Простой “Калман” 
 // https://alexgyver.ru/lessons/filters/
 float _err_measure = 0.8;  // примерный шум измерений
-float _q = 0.1;   // скорость изменения значений 0.001-1, варьировать самому
-float simpleKalman(float newVal) {
+float _q = 0.02;   // скорость изменения значений 0.001-1, варьировать самому
+
+float simpleKalman(float newVal) 
+{
   float _kalman_gain, _current_estimate;
   static float _err_estimate = _err_measure;
   static float _last_estimate;

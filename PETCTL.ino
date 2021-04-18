@@ -75,7 +75,7 @@ void setup() {
   stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
   stepper.reverse(false);            // reverse direction
  
-  oled.init();              // инициализация
+  oled.init();
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
   Wire.setClock(400000L);   // макс. 800'000
  { oled.clear();

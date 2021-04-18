@@ -1,5 +1,7 @@
 ﻿#ifndef GyverOLED_h
 #define GyverOLED_h
+// 27.02.2021 - исправил непечатающуюся нижнюю строку
+// 16.03.2021 - исправлены символы [|]~$
 /*
 GyverOLED - лёгкая и быстрая библиотека для OLED дисплея
 - Поддержка OLED дисплеев на SSD1306/SSH1106 с разрешением 128х64 и 128х32 с подключением по I2C
@@ -206,7 +208,7 @@ public:
 		if (data == '\n') { _y += _scaleY; newPos = true; data = 0; }			// получен перевод строки
 		if (_println && (_x + 6*_scaleX) >= _maxX) { _x = 0; _y += _scaleY; newPos = true; }	// строка переполненена, перевод и возврат
 		if (newPos) setCursorXY(_x, _y);										// переставляем курсор
-		if (_y + _scaleY > _maxY) data = 0;										// дисплей переполнен
+		if (_y + _scaleY > _maxY + 1) data = 0;									// дисплей переполнен
 		if (_println && data == ' ' && _x == 0) { data = 0; }					// убираем первый пробел в строке
 		
 		// фикс русских букв и некоторых символов
@@ -486,14 +488,14 @@ public:
 	// прямоугольник скруглённый (лев. верхн, прав. нижн)
 	void roundRect(int x0, int y0, int x1, int y1, byte fill = OLED_FILL) {
 		/*
-		    ▅ ▅ ▅ ▅ ▅
-		  ▅ ▅ ▅ ▅ ▅ ▅
+			▅ ▅ ▅ ▅ ▅
+		▅ ▅ ▅ ▅ ▅ ▅
 		▅ ▅ ▅ ▅ ▅ ▅ ▅
 		▅ ▅ ▅ ▅ ▅ ▅ ▅
 		▅ ▅ ▅ ▅ ▅ ▅ ▅
 		▅ ▅ ▅ ▅ ▅ ▅ ▅
-		  ▅ ▅ ▅ ▅ ▅ ▅
-		    ▅ ▅ ▅ ▅ ▅
+		▅ ▅ ▅ ▅ ▅ ▅
+			▅ ▅ ▅ ▅ ▅
 		*/
 		if (fill == OLED_FILL) {
 			fastLineV(x0, y0+2, y1-2);
@@ -833,9 +835,9 @@ public:
 private:
 	// получить "столбик-байт" буквы
 	uint8_t getFont(uint8_t font, uint8_t row) {
-		if (row > 4) return 0;
-		font = font - '0' + 16;   // перевод код символа из таблицы ASCII
-		if (font <= 90) {
+		if (row > 4) return 0;		
+		font = font - '0' + 16;   // перевод код символа из таблицы ASCII	
+		if (font <= 95) {
 			return pgm_read_byte(&(charMap[font][row])); 		// для английских букв и символов
 		} else if (font >= 96 && font <= 111) {					// и пизд*ц для русских
 			return pgm_read_byte(&(charMap[font + 47][row]));
@@ -843,7 +845,7 @@ private:
 			return pgm_read_byte(&(charMap[font - 17][row]));
 		} else {
 			return pgm_read_byte(&(charMap[font - 1][row]));	// для кастомных (ё)
-		}		
+		}
 	}	
 	
 	// ==================== ПЕРЕМЕННЫЕ И КОНСТАНТЫ ====================

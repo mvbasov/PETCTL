@@ -36,6 +36,18 @@
 #define CFG_PID_D 59.87
 /* Which pin heater MOSFET connected to */
 #define CFG_HEATER_PIN 9
+/* Gear ratio for PETPull-2 Zneipas reductor variant */
+/* 
+  8 teeth gear on stepper shaft interact with
+  33 teeth gear of 1-st gear.
+  11 teeth of 1-st gear interact with 
+  33 teeth gear of 2-nd gear.
+  11 teeth of 2-nd gear interact with 
+  55 teeth of target bobin
+*/
+//#define CFG_RED_G1 33/8
+//#define CFG_RED_G2 33/11
+//#define CFG_RED_G3 55/11
 /* Gear ratio for RobertSa reductor variant */
 /* 
   8 teeth gear on stepper shaft interact with
@@ -48,7 +60,7 @@
 #define CFG_RED_G1 36/8
 #define CFG_RED_G2 36/8
 #define CFG_RED_G3 55/8
-/* Gear ratio for original Zneipas reductor variant */
+/* Gear ratio for PetPull Zneipas reductor variant */
 /* 
   8 teeth gear on stepper shaft interact with
   36 teeth gear of 1-st gear.

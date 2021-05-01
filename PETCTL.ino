@@ -80,7 +80,7 @@ void setup() {
   // настраиваем прерывания с периодом, при котором 
   // система сможет обеспечить максимальную скорость мотора.
   // Для большей плавности лучше лучше взять период чуть меньше, например в два раза
-  Timer2.setPeriod(stepper.getMinPeriod() / 2);
+  Timer2.setPeriod(stepper.getMinPeriod() / 1.2);
   // взводим прерывание
   Timer2.enableISR();
   stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости

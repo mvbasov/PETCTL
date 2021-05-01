@@ -1,7 +1,7 @@
 /* enable/disable output temperature and PID output for debug */
 //#define SERIAL_DEBUG
 /*   Stepper driver microstep devision */
-#define CFG_STEP_DIV 4
+#define CFG_STEP_DIV 8
 /* Which pin stepper driver STEP pin connected */
 #define CFG_STEP_STEP_PIN 6
 /* Which pin stepper driver DIR pin connected */
@@ -47,9 +47,9 @@
 
   reduction ratio 65.68(18)
 */
-//#define CFG_RED_G1 34/8
-//#define CFG_RED_G2 34/11
-//#define CFG_RED_G3 55/11
+#define CFG_RED_G1 34/8
+#define CFG_RED_G2 34/11
+#define CFG_RED_G3 55/11
 /* Gear ratio for RobertSa reductor variant */
 /* 
   8 teeth gear on stepper shaft interact with
@@ -61,9 +61,9 @@
 
   reduction ratio 139.21875
 */
-#define CFG_RED_G1 36/8
-#define CFG_RED_G2 36/8
-#define CFG_RED_G3 55/8
+//#define CFG_RED_G1 36/8
+//#define CFG_RED_G2 36/8
+//#define CFG_RED_G3 55/8
 /* Gear ratio for PetPull Zneipas reductor variant */
 /* 
   8 teeth gear on stepper shaft interact with

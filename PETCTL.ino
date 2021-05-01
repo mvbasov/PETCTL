@@ -97,7 +97,7 @@ void setup() {
   oled.println("PETCTL");
   oled.setScale(1);
   oled.setCursor(95, 7);
-  oled.print("V 0.5");
+  oled.print("V 0.6");
   delay(4000);
   //
  

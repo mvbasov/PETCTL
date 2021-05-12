@@ -60,11 +60,16 @@ const float REDCONST = BOBIN_ROUND_LENGTH /(360 * GEAR_RATIO * 1000);
 boolean runMotor=false;
 long Speed = (float)CFG_SPEED_INIT/(REDCONST * 1000); // 539 degree/sec for 2.5 mm/s speed
 
+/* Interactive statuses */
 #define CHANGE_NO 0
 #define CHANGE_TEMPERATURE 1
 #define CHANGE_SPEED 2
 int whatToChange = CHANGE_NO;
 unsigned long interactive = millis();
+
+/* Emergency stop reasons */
+#define OVERHEAT 1
+#define THERMISTOR_ERROR 2
 
 void encRotationToValue (long* value, int inc = 1, long minValue = 0, long maxValue = 0);
 
@@ -186,6 +191,8 @@ void loop() {
     }
 
     curTemp = getTemp();
+    if (curTemp > CFG_TEMP_MAX - 10) emStop(OVERHEAT);
+    if (curTemp < -10) emStop(THERMISTOR_ERROR);
     regulator.input = curTemp;
     if (curTemp != prevTemp) {
       prevTemp = curTemp;
@@ -241,6 +248,28 @@ void loop() {
       oled.println("   ");
       finalLength = 0;
     }
+}
+
+void emStop(int reason) {
+  runMotor = false;
+  motorCTL(0);
+  Heat = false;
+  analogWrite(HEATER_PIN, 0);
+  oled.clear();
+  oled.setScale(3);
+  oled.setCursorXY(0,2);
+  oled.println("*HALT!*");
+  oled.setScale(2);
+  oled.setCursorXY(3,40);
+  switch (reason) {
+    case OVERHEAT:
+      oled.println("Overheat");
+      break;
+    case THERMISTOR_ERROR:
+      oled.println("Thermistor");
+      break;
+  }
+  for(;;);
 }
  
 float getMilage() {

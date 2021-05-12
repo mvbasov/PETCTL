@@ -18,7 +18,7 @@
 #define CFG_TEMP_INIT 180
 /* Maximum allowed temperature [degree C], allowed to set to 10 degree less */
 #define CFG_TEMP_MAX 290
-/* Maximum allowed temperature to set [degree C] */
+/* Minimum allowed temperature to set [degree C] */
 #define CFG_TEMP_MIN 120
 /* Which pin termistor connected to*/
 #define CFG_TERM_PIN A0

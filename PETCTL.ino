@@ -224,6 +224,7 @@ void loop() {
             oled.setScale(1);
             oled.setCursorXY(90, 55);
             oled.println(rest*100,1); // rest in cm
+            oled.setScale(2);
           } else {
             runMotor = false;
             motorCTL(0);
@@ -247,13 +248,13 @@ float getMilage() {
 }
 
 void motorCTL(long setSpeed) {
+  oled.setScale(2);
+  oled.setCursorXY(0, 23);
   if (setSpeed != 0) {
     stepper.setSpeedDeg(setSpeed, SMOOTH);        // [degree/sec]
-    oled.setCursorXY(0, 23);
     oled.println("*");
   } else {
-    stepper.stop();  
-    oled.setCursorXY(0, 23);
+    stepper.stop();
     oled.println(".");
   }
 }

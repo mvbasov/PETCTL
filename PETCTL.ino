@@ -66,7 +66,7 @@ long Speed = (float)CFG_SPEED_INIT/(REDCONST * 1000); // 539 degree/sec for 2.5 
 int whatToChange = CHANGE_NO;
 unsigned long interactive = millis();
 
-void encRotationToValue (long* value, int inc = 1);
+void encRotationToValue (long* value, int inc = 1, long minValue = 0, long maxValue = 0);
 
 void setup() {
 #if defined(SERIAL_DEBUG)
@@ -152,7 +152,7 @@ void loop() {
     }
 
     if( whatToChange == CHANGE_TEMPERATURE) {
-      encRotationToValue(&newTargetTemp);
+      encRotationToValue(&newTargetTemp, 1, CFG_TEMP_MIN, CFG_TEMP_MAX - 10);
       if (enc1.isHolded()){
         Heat = ! Heat;
         printHeaterStatus(Heat);
@@ -267,11 +267,13 @@ void printHeaterStatus(boolean status) {
     oled.println(".");
 }
 
-void encRotationToValue (long* value, int inc = 1) {
+void encRotationToValue (long* value, int inc = 1, long minValue = 0, long maxValue = 0) {
       if (enc1.isRight()) { *value += inc; interactiveSet(); }     // если был поворот направо, увеличиваем на 1
       if (enc1.isFastR()) { *value += inc * 5; interactiveSet(); }    // если был быстрый поворот направо, увеличиваем на 10
       if (enc1.isLeft())  { *value -= inc; interactiveSet(); }     // если был поворот налево, уменьшаем на 1
       if (enc1.isFastL()) { *value -= inc * 5; interactiveSet(); }    // если был быстрый поворот налево, уменьшаем на на 10
+      if (minValue > 0 && *value < minValue) *value = minValue;
+      if (maxValue > 0 && *value > maxValue) *value = maxValue;
 }
 
 void printTargetTemp(float t){

@@ -16,6 +16,10 @@
 #define CFG_ENC_SW 4
 /* Initial target temperature [degree C]*/
 #define CFG_TEMP_INIT 180
+/* Maximum allowed temperature [degree C] */
+#define CFG_TEMP_MAX 290
+/* Maximum allowed temperature to set [degree C] */
+#define CFG_TEMP_MIN 120
 /* Which pin termistor connected to*/
 #define CFG_TERM_PIN A0
 /* Thermistor resistance at 25 degrees C [Om] */

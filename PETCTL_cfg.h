@@ -16,7 +16,7 @@
 #define CFG_ENC_SW 4
 /* Initial target temperature [degree C]*/
 #define CFG_TEMP_INIT 180
-/* Maximum allowed temperature [degree C] */
+/* Maximum allowed temperature [degree C], allowed to set to 10 degree less */
 #define CFG_TEMP_MAX 290
 /* Maximum allowed temperature to set [degree C] */
 #define CFG_TEMP_MIN 120

@@ -177,7 +177,7 @@ void loop() {
       }
       if (newSpeed != Speed) {
         Speed = newSpeed;
-        if (runMotor) stepper.setSpeedDeg(newSpeed, SMOOTH);        // в градусах/сек
+        if (runMotor) motorCTL(newSpeed);        // в градусах/сек
         printSpeed(newSpeed);
       }
     }

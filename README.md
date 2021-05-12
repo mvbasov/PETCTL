@@ -27,4 +27,4 @@
 - Драйвер шагового двигателя A4988, DRV8825 или TMC2208 (как поставить перемычки смотреть [тут](https://alexgyver.ru/gyverstepper/))
 - OLED дисплей использовал [этот](https://a.aliexpress.com/_AEG46X) или [этот](https://a.aliexpress.com/_9g5hqT) **(Внимание! выводы питания у них ровно наоборот!)**
 - Энкодер поставил какой был под рукой. Должен подойти [этот](https://a.aliexpress.com/_9uJ3AL)
-- ![alt text](https://github.com/nehilo/PETCTL/blob/github/IMG/%40arr.png?raw=true)
+![alt text](https://github.com/nehilo/PETCTL/blob/github/IMG/%40arr.png?raw=true)

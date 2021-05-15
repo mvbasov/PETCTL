@@ -85,3 +85,8 @@
 #define CFG_BOBIN_DIAM 74
 /* Initial pull speed [mm/s] */
 #define CFG_SPEED_INIT 2.5
+/* Buzzer pin connection */
+#define CFG_SOUND_PIN 13
+/* Enable startup sound (comment to disable).
+   Special for GEORGIY (@nehilo011) :) */
+#define CFG_SOUND_START

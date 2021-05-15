@@ -78,6 +78,7 @@ void setup() {
   Serial.begin(9600);
 #endif //SERIAL_DEBUG
   pinMode(ENDSTOP, INPUT_PULLUP);
+  pinMode(CFG_SOUND_PIN, OUTPUT);
   // установка макс. скорости в градусах/сек
   stepper.setMaxSpeedDeg(3600);
   // установка ускорения в шагах/сек/сек
@@ -102,7 +103,10 @@ void setup() {
   oled.println("PETCTL");
   oled.setScale(1);
   oled.setCursor(20, 7);
-  oled.print("mvb    V 0.7");
+  oled.print("mvb    V 0.8b");
+#if defined(CFG_SOUND_START)
+  oneBeep();
+#endif
   delay(4000);
   //
  
@@ -238,6 +242,7 @@ void loop() {
             Heat = false;
             printHeaterStatus(Heat);
             finalLength = 0;
+            twoBeep();
           }
         } else {
           finalLength = getMilage() + EXTRA_LENGTH;
@@ -249,6 +254,19 @@ void loop() {
       finalLength = 0;
     }
 }
+
+void oneBeep() {
+  digitalWrite(CFG_SOUND_PIN, 1);
+  delay(50);
+  digitalWrite(CFG_SOUND_PIN, 0);
+}
+
+void twoBeep() {
+  oneBeep();
+  delay(100);
+  oneBeep();
+}
+
 
 void emStop(int reason) {
   runMotor = false;

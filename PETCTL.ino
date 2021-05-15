@@ -97,6 +97,9 @@ void setup() {
   Wire.setClock(400000L);   // макс. 800'000
   
  //заставка
+#if defined(CFG_SOUND_START)
+  beepE();
+#endif
   oled.clear();
   oled.setScale(3);
   oled.setCursor(13, 2);
@@ -104,11 +107,7 @@ void setup() {
   oled.setScale(1);
   oled.setCursor(20, 7);
   oled.print("mvb    V 0.8b");
-#if defined(CFG_SOUND_START)
-  oneBeep();
-#endif
-  delay(4000);
-  //
+  delay(3000);
  
   oled.clear();
   oled.setScale(1);
@@ -242,7 +241,7 @@ void loop() {
             Heat = false;
             printHeaterStatus(Heat);
             finalLength = 0;
-            twoBeep();
+            beepI();
           }
         } else {
           finalLength = getMilage() + EXTRA_LENGTH;
@@ -255,19 +254,29 @@ void loop() {
     }
 }
 
-void oneBeep() {
+void beepE() {
   digitalWrite(CFG_SOUND_PIN, 1);
   delay(50);
   digitalWrite(CFG_SOUND_PIN, 0);
+  delay(50);
 }
 
-void twoBeep() {
-  oneBeep();
-  delay(100);
-  oneBeep();
+void beepI() {
+  beepE();
+  beepE();
+}
+void beepT() {
+  digitalWrite(CFG_SOUND_PIN, 1);
+  delay(150);
+  digitalWrite(CFG_SOUND_PIN, 0);
+  delay(50);
 }
 
-
+void beepO() {
+  beepT();
+  beepT();
+  beepT();
+}
 void emStop(int reason) {
   runMotor = false;
   motorCTL(0);
@@ -287,7 +296,10 @@ void emStop(int reason) {
       oled.println("Thermistor");
       break;
   }
-  for(;;);
+  for(;;){
+    beepO();
+    delay(60000);
+  }
 }
  
 float getMilage() {

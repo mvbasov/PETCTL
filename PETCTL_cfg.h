@@ -7,7 +7,7 @@
 /* Which pin stepper driver DIR pin connected */
 #define CFG_STEP_DIR_PIN 5
 /* Which pin stepper driver EN pin connected */
-#define CFG_STEP_EN_PIN 1
+#define CFG_STEP_EN_PIN 7
 /* Which pin encoder CLK pin connected */
 #define CFG_ENC_CLK 3
 /* Which pin encoder DT pin connected */

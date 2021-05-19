@@ -79,6 +79,8 @@ void setup() {
 #endif //SERIAL_DEBUG
   pinMode(ENDSTOP, INPUT_PULLUP);
   pinMode(CFG_SOUND_PIN, OUTPUT);
+  
+  stepper.disable();
   // установка макс. скорости в градусах/сек
   stepper.setMaxSpeedDeg(3600);
   // установка ускорения в шагах/сек/сек
@@ -91,7 +93,7 @@ void setup() {
   Timer2.enableISR();
   stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
   stepper.reverse(true);            // reverse direction
- 
+
   oled.init();              // инициализация
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
   Wire.setClock(400000L);   // макс. 800'000
@@ -280,6 +282,7 @@ void beepO() {
 void emStop(int reason) {
   runMotor = false;
   motorCTL(0);
+  stepper.disable();
   Heat = false;
   analogWrite(HEATER_PIN, 0);
   oled.clear();
@@ -314,6 +317,7 @@ void motorCTL(long setSpeed) {
     oled.println("*");
   } else {
     stepper.stop();
+    stepper.disable();
     oled.println(".");
   }
 }

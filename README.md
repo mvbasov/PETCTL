@@ -1,5 +1,5 @@
 # PETCTL
-![alt text](https://github.com/mvbasov/PETCTL/blob/github/IMG/petctlbanner.png?raw=true)
+![alt text](IMG/petctlbanner.png?raw=true)
 
 Это контролер управляющий станком преобразующим ленту нарезанную из PET бутылок в волокно пригодное для 3D печати.
 Проект на очень ранней стадии но я его использую и, как правило,  у меня всё работает ;)
@@ -34,4 +34,4 @@
 - Энкодер поставил какой был под рукой. Должен подойти [этот](https://a.aliexpress.com/_9uJ3AL)
 
 
-![alt text](https://github.com/mvbasov/PETCTL/blob/github/IMG/%40arr.png?raw=true)
+![alt text](IMG/%40arr.png?raw=true)

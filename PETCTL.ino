@@ -85,6 +85,7 @@ void setup() {
 #if defined(SERIAL_DEBUG_STEPPER)
   Serial.print("Gear ratio: ");
   Serial.println(GEAR_RATIO);
+  Serial.println("[deg/s],\t[step/s],\t[mm/s],\t[deg/s]");
 #endif //SERIAL_DEBUG_STEPPER
 
   pinMode(ENDSTOP, INPUT_PULLUP);
@@ -143,8 +144,8 @@ void setup() {
 
 // обработчик
 ISR(TIMER2_A) {
-  stepper.tick(); // тикаем тут
   enc1.tick();
+  stepper.tick(); // тикаем тут
 }
 
 void loop() {
@@ -329,9 +330,9 @@ float getMilage() {
 void motorCTL(long setSpeedX10) {
 #if defined(SERIAL_DEBUG_STEPPER)
   Serial.print(stepper.getSpeedDeg());
-  Serial.print(" deg/s, ");
+  Serial.print(",\t");
   Serial.print(stepper.getSpeed());
-  Serial.print(" step/s, ");
+  Serial.print(",\t");
 #endif // SERIAL_DEBUG_STEPPER
   oled.setScale(2);
   oled.setCursorXY(0, 23);
@@ -345,10 +346,10 @@ void motorCTL(long setSpeedX10) {
     oled.println(".");
   }
 #if defined(SERIAL_DEBUG_STEPPER)
-  Serial.print(setSpeedX10);
-  Serial.print(" mm/s X 10, ");
+  Serial.print((float)setSpeedX10/10);
+  Serial.print(",\t");
   Serial.print(stepper.getSpeedDeg());
-  Serial.println(" deg/s");
+  Serial.println(" ");
 #endif // SERIAL_DEBUG_STEPPER
 
 }

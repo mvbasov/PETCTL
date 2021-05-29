@@ -269,9 +269,9 @@ void beepI() {
 }
 void beepT() {
   digitalWrite(CFG_SOUND_PIN, 1);
-  delay(150);
+  delay(600);
   digitalWrite(CFG_SOUND_PIN, 0);
-  delay(50);
+  delay(200);
 }
 
 void beepO() {

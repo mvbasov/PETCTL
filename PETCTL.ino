@@ -120,7 +120,7 @@ void setup() {
   oled.setCursorXY(78,5+5+5+5+32);
   oled.println("m");
 
-  enc1.setType(TYPE1);
+  enc1.setType(CFG_ENC_TYPE);
   enc1.setPinMode(LOW_PULL);
 
   regulator.setpoint = targetTemp;

@@ -108,8 +108,8 @@
 
   reduction ratio 30.9375
 */
-#if defined(CFG_RED_PP2)
+#if defined(CFG_RED_PP1)
 #define CFG_RED_G1 36/8
 #define CFG_RED_G2 1
 #define CFG_RED_G3 55/8
-#endif //CFG_RED_PP2
+#endif //CFG_RED_PP1

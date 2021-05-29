@@ -78,9 +78,15 @@ unsigned long interactive = millis();
 void encRotationToValue (long* value, int inc = 1, long minValue = 0, long maxValue = 0);
 
 void setup() {
-#if defined(SERIAL_DEBUG)
+
+#if defined(SERIAL_DEBUG_TEMP) || defined(SERIAL_DEBUG_STEPPER)
   Serial.begin(9600);
-#endif //SERIAL_DEBUG
+#endif //SERIAL_DEBUG_TEMP || SERIAL_DEBUG_STEPPER
+#if defined(SERIAL_DEBUG_STEPPER)
+  Serial.print("Gear ratio: ");
+  Serial.println(GEAR_RATIO);
+#endif //SERIAL_DEBUG_STEPPER
+
   pinMode(ENDSTOP, INPUT_PULLUP);
   pinMode(CFG_SOUND_PIN, OUTPUT);
   
@@ -96,9 +102,10 @@ void setup() {
   // взводим прерывание
   Timer2.enableISR();
   stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
+  stepper.setSpeedDeg((float)0, SMOOTH);
   stepper.reverse(true);            // reverse direction
   stepper.reset();                  // остановка и сброс позиции в 0
-
+ 
   oled.init();              // инициализация
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
   Wire.setClock(400000L);   // макс. 800'000
@@ -208,26 +215,26 @@ void loop() {
       prevTemp = curTemp;
       printCurrentTemp(curTemp);
     }
-#if defined(SERIAL_DEBUG)
+#if defined(SERIAL_DEBUG_TEMP)
     Serial.print(curTemp);
-#endif //end SERIAL_DEBUG
+#endif //end SERIAL_DEBUG_TEMP
     if (Heat) {
       int pidOut = (int) constrain(regulator.getResultTimer(), 0, 255);
       analogWrite(HEATER_PIN, pidOut);
-#if defined(SERIAL_DEBUG)
+#if defined(SERIAL_DEBUG_TEMP)
       Serial.print(' ');
       Serial.print(pidOut);
-#endif //end SERIAL_DEBUG
+#endif //end SERIAL_DEBUG_TEMP
     } else {
       analogWrite(HEATER_PIN, 0);
-#if defined(SERIAL_DEBUG)
+#if defined(SERIAL_DEBUG_TEMP)
       Serial.print(' ');
       Serial.print(0);
-#endif //end SERIAL_DEBUG
+#endif //end SERIAL_DEBUG_TEMP
     }
-#ifdef SERIAL_DEBUG
+#ifdef SERIAL_DEBUG_TEMP
     Serial.println(' ');
-#endif //end SERIAL_DEBUG
+#endif //end SERIAL_DEBUG_TEMP
 
     oled.setCursorXY(90, 47);
     if(!digitalRead(ENDSTOP)) {
@@ -320,16 +327,30 @@ float getMilage() {
 }
 
 void motorCTL(long setSpeedX10) {
+#if defined(SERIAL_DEBUG_STEPPER)
+  Serial.print(stepper.getSpeedDeg());
+  Serial.print(" deg/s, ");
+  Serial.print(stepper.getSpeed());
+  Serial.print(" step/s, ");
+#endif // SERIAL_DEBUG_STEPPER
   oled.setScale(2);
   oled.setCursorXY(0, 23);
   if (setSpeedX10 != 0) {
     stepper.setSpeedDeg(mmStoDeg((float)setSpeedX10/10), SMOOTH);        // [degree/sec]
     oled.println("*");
   } else {
+    stepper.setSpeedDeg((float)0, SMOOTH);
     stepper.stop();
     stepper.disable();
     oled.println(".");
   }
+#if defined(SERIAL_DEBUG_STEPPER)
+  Serial.print(setSpeedX10);
+  Serial.print(" mm/s X 10, ");
+  Serial.print(stepper.getSpeedDeg());
+  Serial.println(" deg/s");
+#endif // SERIAL_DEBUG_STEPPER
+
 }
 
 void printHeaterStatus(boolean status) {

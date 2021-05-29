@@ -1,5 +1,3 @@
-/* enable/disable output temperature and PID output for debug */
-//#define SERIAL_DEBUG
 /*   Stepper driver microstep devision */
 #define CFG_STEP_DIV 8
 /* Which pin stepper driver STEP pin connected */
@@ -63,6 +61,12 @@
 #define CFG_RED_PP2
 
 /* DON'T CHANGE ANYTHING AFTER THIS LINE IF YOU NOT SHURE TO 146% */
+
+/* 
+  enable/disable serial debug output
+*/
+//#define SERIAL_DEBUG_TEMP 
+//#define SERIAL_DEBUG_STEPPER
 
 /* Gear ratio for PETPull-2 Zneipas reductor variant */
 /* 

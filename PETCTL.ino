@@ -1,4 +1,7 @@
 #include "PETCTL_cfg.h"
+#define SPEED_MAX 10
+
+#define DRIVER_STEP_TIME 6  // меняем задержку на 6 мкс
 #include "GyverStepper.h"
 GStepper<STEPPER2WIRE> stepper(200 * CFG_STEP_DIV, CFG_STEP_STEP_PIN, CFG_STEP_DIR_PIN, CFG_STEP_EN_PIN);
 
@@ -58,7 +61,8 @@ Bobin round length
 const float REDCONST = BOBIN_ROUND_LENGTH /(360 * GEAR_RATIO * 1000);
 //const float REDCONST = 232.478 /(360 * 139.21875 * 1000);
 boolean runMotor=false;
-long Speed = (float)CFG_SPEED_INIT/(REDCONST * 1000); // 539 degree/sec for 2.5 mm/s speed
+//long Speed = (float)CFG_SPEED_INIT/(REDCONST * 1000); // 539 degree/sec for 2.5 mm/s speed
+long SpeedX10 = (float)CFG_SPEED_INIT * 10;
 
 /* Interactive statuses */
 #define CHANGE_NO 0
@@ -82,7 +86,7 @@ void setup() {
   
   stepper.disable();
   // установка макс. скорости в градусах/сек
-  stepper.setMaxSpeedDeg(3600);
+  stepper.setMaxSpeedDeg(mmStoDeg((float)SPEED_MAX));
   // установка ускорения в шагах/сек/сек
   stepper.setAcceleration(200);
   // настраиваем прерывания с периодом, при котором 
@@ -93,6 +97,7 @@ void setup() {
   Timer2.enableISR();
   stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
   stepper.reverse(true);            // reverse direction
+  stepper.reset();                  // остановка и сброс позиции в 0
 
   oled.init();              // инициализация
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
@@ -115,7 +120,7 @@ void setup() {
   oled.setScale(1);
   oled.setCursorXY(74,5);
   oled.println("*C");
-  oled.setCursorXY(70,5+5+16);
+  oled.setCursorXY(75,5+5+16);
   oled.println("mm/s");
   oled.setCursorXY(78,5+5+5+5+32);
   oled.println("m");
@@ -124,7 +129,7 @@ void setup() {
   enc1.setPinMode(LOW_PULL);
 
   regulator.setpoint = targetTemp;
-  printSpeed(Speed);
+  printSpeed(SpeedX10);
   printTargetTemp(targetTemp);
   printMilage(0.0);
 }
@@ -140,24 +145,24 @@ void loop() {
     //stepper.tick();
 
     long newTargetTemp = targetTemp;
-    long newSpeed = Speed;
+    long newSpeedX10 = SpeedX10;
     float rest;
 
     if (enc1.isDouble()) {
       whatToChange = CHANGE_SPEED;
       interactiveSet();
       printTargetTemp(targetTemp); // to clear selection
-      printSpeed(Speed);
+      printSpeed(SpeedX10);
     }
     if (enc1.isSingle()) {
       whatToChange = CHANGE_TEMPERATURE;
       interactiveSet();
-      printSpeed(Speed); // to clear selection
+      printSpeed(SpeedX10); // to clear selection
       printTargetTemp(targetTemp);
     }
     if (!isInteractive()) {
       whatToChange = CHANGE_NO;
-      printSpeed(Speed); // to clear selection
+      printSpeed(SpeedX10); // to clear selection
       printTargetTemp(targetTemp);
     }
 
@@ -174,21 +179,21 @@ void loop() {
         printTargetTemp(newTargetTemp);
       }
     } else if (whatToChange == CHANGE_SPEED) {
-      encRotationToValue(&newSpeed, 2);
+      encRotationToValue(&newSpeedX10, 1, -1 * SPEED_MAX * 10, SPEED_MAX * 10);
       if (enc1.isHolded()) {
         runMotor = ! runMotor;
         if (runMotor) {
-          motorCTL(newSpeed);
+          motorCTL(newSpeedX10);
         } else {
           motorCTL(0);
           runMotor = false;
         }
         interactiveSet();
       }
-      if (newSpeed != Speed) {
-        Speed = newSpeed;
-        if (runMotor) motorCTL(newSpeed);        // в градусах/сек
-        printSpeed(newSpeed);
+      if (newSpeedX10 != SpeedX10) {
+        SpeedX10 = newSpeedX10;
+        if (runMotor) motorCTL(newSpeedX10);        // в градусах/сек
+        printSpeed(newSpeedX10);
       }
     }
     if (runMotor) {
@@ -256,6 +261,10 @@ void loop() {
     }
 }
 
+long mmStoDeg(float mmS) {
+  return mmS / (REDCONST * 1000);
+}
+
 void beepE() {
   digitalWrite(CFG_SOUND_PIN, 1);
   delay(50);
@@ -279,6 +288,7 @@ void beepO() {
   beepT();
   beepT();
 }
+
 void emStop(int reason) {
   runMotor = false;
   motorCTL(0);
@@ -309,11 +319,11 @@ float getMilage() {
   return stepper.getCurrentDeg() * REDCONST;
 }
 
-void motorCTL(long setSpeed) {
+void motorCTL(long setSpeedX10) {
   oled.setScale(2);
   oled.setCursorXY(0, 23);
-  if (setSpeed != 0) {
-    stepper.setSpeedDeg(setSpeed, SMOOTH);        // [degree/sec]
+  if (setSpeedX10 != 0) {
+    stepper.setSpeedDeg(mmStoDeg((float)setSpeedX10/10), SMOOTH);        // [degree/sec]
     oled.println("*");
   } else {
     stepper.stop();
@@ -335,15 +345,17 @@ void encRotationToValue (long* value, int inc = 1, long minValue = 0, long maxVa
       if (enc1.isFastR()) { *value += inc * 5; interactiveSet(); }    // если был быстрый поворот направо, увеличиваем на 10
       if (enc1.isLeft())  { *value -= inc; interactiveSet(); }     // если был поворот налево, уменьшаем на 1
       if (enc1.isFastL()) { *value -= inc * 5; interactiveSet(); }    // если был быстрый поворот налево, уменьшаем на на 10
-      if (minValue > 0 && *value < minValue) *value = minValue;
-      if (maxValue > 0 && *value > maxValue) *value = maxValue;
+      //if (minValue > 0 && *value < minValue) *value = minValue;
+      if (*value < minValue) *value = minValue;
+      //if (maxValue > 0 && *value > maxValue) *value = maxValue;
+      if (*value > maxValue) *value = maxValue;
 }
 
 void printTargetTemp(float t){
       oled.setScale(2);      
       if(whatToChange == CHANGE_TEMPERATURE)  oled.invertText(true);
       oled.setCursorXY(88, 0);
-      oled.println((int)t);  
+      oled.println((int)t, 1);  
       oled.invertText(false);
 }
 
@@ -354,12 +366,13 @@ void printCurrentTemp(float t) {
 }
 
 void printSpeed(long s){
-      // s - speed in degree per second
-      // pint in mm/s
+      // s -speed in mm/s * 10
+      // // pint in mm/s
       oled.setScale(2);      
       oled.setCursorXY(12, 23);
       if(whatToChange == CHANGE_SPEED)  oled.invertText(true);
-      oled.println(s * REDCONST * 1000,2);  
+      //oled.println(s * REDCONST * 1000,2);
+      oled.println((float)s/10, 1);  
       oled.invertText(false);
 }
 

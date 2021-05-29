@@ -42,6 +42,28 @@
 #define CFG_PID_D 59.87
 /* Which pin heater MOSFET connected to */
 #define CFG_HEATER_PIN 9
+/* Target filament bobin diameter [mm] */
+#define CFG_BOBIN_DIAM 74
+/* Initial pull speed [mm/s] */
+#define CFG_SPEED_INIT 2.5
+/* Buzzer pin connection */
+#define CFG_SOUND_PIN 13
+/* Enable startup sound (comment to disable).
+   Special for GEORGIY (@nehilo011) :) */
+#define CFG_SOUND_START
+/* 
+ *  Chouse reductor type. 
+ * Only one CFG_RED_RA, CFG_RED_PP1 or CFG_RED_PP2 can be uncomment
+ */
+/* RobertSa/Anatoly reductor variant (1:139.21875 ratio)*/
+//#define CFG_RED_RA
+/* PETPull Zneipas classic old reductor variant (1:30.9375 ratio)*/
+//#define CFG_RED_PP1
+/* PETPull-2 Zneipas reductor variant (1:65.68(18) ratio)*/
+#define CFG_RED_PP2
+
+/* DON'T CHANGE ANYTHING AFTER THIS LINE IF YOU NOT SHURE TO 146% */
+
 /* Gear ratio for PETPull-2 Zneipas reductor variant */
 /* 
   8 teeth gear on stepper shaft interact with
@@ -53,10 +75,13 @@
 
   reduction ratio 65.68(18)
 */
+#if defined(CFG_RED_PP2)
 #define CFG_RED_G1 34/8
 #define CFG_RED_G2 34/11
 #define CFG_RED_G3 55/11
-/* Gear ratio for RobertSa reductor variant */
+#endif //CFG_RED_PP2
+
+/* Gear ratio for RobertSa/Anatoly reductor variant */
 /* 
   8 teeth gear on stepper shaft interact with
   36 teeth gear of 1-st gear.
@@ -67,9 +92,12 @@
 
   reduction ratio 139.21875
 */
-//#define CFG_RED_G1 36/8
-//#define CFG_RED_G2 36/8
-//#define CFG_RED_G3 55/8
+#if defined(CFG_RED_RA)
+#define CFG_RED_G1 36/8
+#define CFG_RED_G2 36/8
+#define CFG_RED_G3 55/8
+#endif //CFG_RED_RA
+
 /* Gear ratio for PetPull Zneipas reductor variant */
 /* 
   8 teeth gear on stepper shaft interact with
@@ -80,15 +108,8 @@
 
   reduction ratio 30.9375
 */
-//#define CFG_RED_G1 36/8
-//#define CFG_RED_G2 1
-//#define CFG_RED_G3 55/8
-/* Target filament bobin diameter [mm] */
-#define CFG_BOBIN_DIAM 74
-/* Initial pull speed [mm/s] */
-#define CFG_SPEED_INIT 2.5
-/* Buzzer pin connection */
-#define CFG_SOUND_PIN 13
-/* Enable startup sound (comment to disable).
-   Special for GEORGIY (@nehilo011) :) */
-#define CFG_SOUND_START
+#if defined(CFG_RED_PP2)
+#define CFG_RED_G1 36/8
+#define CFG_RED_G2 1
+#define CFG_RED_G3 55/8
+#endif //CFG_RED_PP2

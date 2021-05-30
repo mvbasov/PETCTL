@@ -4,6 +4,7 @@
 #define DRIVER_STEP_TIME 6  // меняем задержку на 6 мкс
 #include "GyverStepper.h"
 GStepper<STEPPER2WIRE> stepper(200 * CFG_STEP_DIV, CFG_STEP_STEP_PIN, CFG_STEP_DIR_PIN, CFG_STEP_EN_PIN);
+//long stepperPosition = 0;
 
 #include "GyverTimers.h"
 
@@ -85,7 +86,7 @@ void setup() {
 #if defined(SERIAL_DEBUG_STEPPER)
   Serial.print("Gear ratio: ");
   Serial.println(GEAR_RATIO);
-  Serial.println("[deg/s],\t[step/s],\t[mm/s],\t[deg/s]");
+  Serial.println("[deg/s],\t[step/s],\t[deg],\t[mm/s],\t[deg/s],\t[deg]");
 #endif //SERIAL_DEBUG_STEPPER
 
   pinMode(ENDSTOP, INPUT_PULLUP);
@@ -106,6 +107,7 @@ void setup() {
   stepper.setSpeedDeg((float)0, SMOOTH);
   stepper.reverse(true);            // reverse direction
   stepper.reset();                  // остановка и сброс позиции в 0
+  //stepperPosition = 0;
  
   oled.init();              // инициализация
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
@@ -333,13 +335,17 @@ void motorCTL(long setSpeedX10) {
   Serial.print(",\t");
   Serial.print(stepper.getSpeed());
   Serial.print(",\t");
+  Serial.print(stepper.getCurrent());
+  Serial.print(",\t");
 #endif // SERIAL_DEBUG_STEPPER
   oled.setScale(2);
   oled.setCursorXY(0, 23);
   if (setSpeedX10 != 0) {
+    //stepper.setCurrent(stepperPosition);
     stepper.setSpeedDeg(mmStoDeg((float)setSpeedX10/10), SMOOTH);        // [degree/sec]
     oled.println("*");
   } else {
+    //stepperPosition = stepper.getCurrent();
     stepper.setSpeedDeg((float)0, SMOOTH);
     stepper.stop();
     stepper.disable();
@@ -349,6 +355,8 @@ void motorCTL(long setSpeedX10) {
   Serial.print((float)setSpeedX10/10);
   Serial.print(",\t");
   Serial.print(stepper.getSpeedDeg());
+  Serial.print(",\t");
+  Serial.print(stepper.getCurrent());
   Serial.println(" ");
 #endif // SERIAL_DEBUG_STEPPER
 

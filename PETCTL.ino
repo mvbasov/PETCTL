@@ -22,36 +22,13 @@ int value = 0;
 float prevTemp, curTemp = 0;
 float targetTemp = CFG_TEMP_INIT;
 
-// which analog pin to connect
-#define THERMISTORPIN CFG_TERM_PIN         
-// resistance at 25 degrees C
-#define THERMISTORNOMINAL 100000      
-// temp. for nominal resistance (almost always 25 C)
-#define TEMPERATURENOMINAL CFG_TERM_VALUE_TEMP   
-// The beta coefficient of the thermistor (usually 3000-4000)
-#define BCOEFFICIENT CFG_TERM_B_COEFF
-// the value of the 'other' resistor
-#define SERIESRESISTOR CFG_TERM_SERIAL_R    
-
-// End stop pin
-#define ENDSTOP CFG_ENDSTOP_PIN
-// Extra length to pull after end stop triggered (in m)
-#define EXTRA_LENGTH CFG_PULL_EXTRA_LENGTH
 float finalLength = 0;
 
 #include "GyverPID.h"
 GyverPID regulator(CFG_PID_P, CFG_PID_I, CFG_PID_D, 200);
 
-#define HEATER_PIN CFG_HEATER_PIN
 boolean Heat = false;
 
-/*
-Reductor constant ~ 4.69624E-6 m/deg (length to stepper rotation degree)
- ((36/8) * (36/8) * (55/8)) = 139.21875
- 139.21875 - gear ratio for RobertSa reductor
- ((36/8) * (55/8)) = 30.9375
- 30.9375 - gear ratio for Zneipas reductor
-*/
 #define GEAR_RATIO ((float)CFG_RED_G1 * (float)CFG_RED_G2 * (float)CFG_RED_G3)
 /*
 Bobin round length
@@ -60,9 +37,7 @@ Bobin round length
 */
 #define BOBIN_ROUND_LENGTH ((float)3.1415926 * (float)CFG_BOBIN_DIAM)
 const float REDCONST = BOBIN_ROUND_LENGTH /(360 * GEAR_RATIO * 1000);
-//const float REDCONST = 232.478 /(360 * 139.21875 * 1000);
 boolean runMotor=false;
-//long Speed = (float)CFG_SPEED_INIT/(REDCONST * 1000); // 539 degree/sec for 2.5 mm/s speed
 long SpeedX10 = (float)CFG_SPEED_INIT * 10;
 
 /* Interactive statuses */
@@ -89,7 +64,7 @@ void setup() {
   Serial.println("[deg/s],\t[step/s],\t[deg],\t[mm/s],\t[deg/s],\t[deg]");
 #endif //SERIAL_DEBUG_STEPPER
 
-  pinMode(ENDSTOP, INPUT_PULLUP);
+  pinMode(CFG_ENDSTOP_PIN, INPUT_PULLUP);
   pinMode(CFG_SOUND_PIN, OUTPUT);
   
   stepper.disable();
@@ -123,7 +98,7 @@ void setup() {
   oled.println("PETCTL");
   oled.setScale(1);
   oled.setCursor(20, 7);
-  oled.print("mvb    V 0.8");
+  oled.print("mvb    V 0.9b");
   delay(3000);
  
   oled.clear();
@@ -223,13 +198,13 @@ void loop() {
 #endif //end SERIAL_DEBUG_TEMP
     if (Heat) {
       int pidOut = (int) constrain(regulator.getResultTimer(), 0, 255);
-      analogWrite(HEATER_PIN, pidOut);
+      analogWrite(CFG_HEATER_PIN, pidOut);
 #if defined(SERIAL_DEBUG_TEMP)
       Serial.print(' ');
       Serial.print(pidOut);
 #endif //end SERIAL_DEBUG_TEMP
     } else {
-      analogWrite(HEATER_PIN, 0);
+      analogWrite(CFG_HEATER_PIN, 0);
 #if defined(SERIAL_DEBUG_TEMP)
       Serial.print(' ');
       Serial.print(0);
@@ -240,7 +215,7 @@ void loop() {
 #endif //end SERIAL_DEBUG_TEMP
 
     oled.setCursorXY(90, 47);
-    if(!digitalRead(ENDSTOP)) {
+    if(!digitalRead(CFG_ENDSTOP_PIN)) {
       if(!runMotor) {
         oled.setScale(2);
         oled.println("  *");
@@ -261,7 +236,7 @@ void loop() {
             beepI();
           }
         } else {
-          finalLength = getMilage() + EXTRA_LENGTH;
+          finalLength = getMilage() + CFG_PULL_EXTRA_LENGTH;
         }
       }
     } else {
@@ -304,7 +279,7 @@ void emStop(int reason) {
   motorCTL(0);
   stepper.disable();
   Heat = false;
-  analogWrite(HEATER_PIN, 0);
+  analogWrite(CFG_HEATER_PIN, 0);
   oled.clear();
   oled.setScale(3);
   oled.setCursorXY(0,2);
@@ -426,18 +401,18 @@ float getTemp() {
   uint8_t i;
   float average;
 
-  average = analogRead(THERMISTORPIN);
+  average = analogRead(CFG_TERM_PIN);
   // convert the value to resistance
   average = 1023 / average - 1;
-  average = SERIESRESISTOR / average;
+  average = CFG_TERM_SERIAL_R / average;
   //Serial.print("Thermistor resistance "); 
   //Serial.println(average);
   
   float steinhart;
-  steinhart = average / THERMISTORNOMINAL;     // (R/Ro)
+  steinhart = average / CFG_TERM_VALUE;     // (R/Ro)
   steinhart = log(steinhart);                  // ln(R/Ro)
-  steinhart /= BCOEFFICIENT;                   // 1/B * ln(R/Ro)
-  steinhart += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
+  steinhart /= CFG_TERM_B_COEFF;                   // 1/B * ln(R/Ro)
+  steinhart += 1.0 / (CFG_TERM_VALUE_TEMP + 273.15); // + (1/To)
   steinhart = 1.0 / steinhart;                 // Invert
   steinhart -= 273.15;                         // convert absolute temp to C
 

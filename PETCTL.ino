@@ -67,6 +67,7 @@ void setup() {
   pinMode(CFG_ENDSTOP_PIN, INPUT_PULLUP);
   pinMode(CFG_SOUND_PIN, OUTPUT);
   
+/*
   stepper.disable();
   // установка макс. скорости в градусах/сек
   stepper.setMaxSpeedDeg(mmStoDeg((float)SPEED_MAX));
@@ -83,6 +84,18 @@ void setup() {
   stepper.reverse(true);            // reverse direction
   stepper.reset();                  // остановка и сброс позиции в 0
   //stepperPosition = 0;
+*/
+
+  stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
+  stepper.reverse(true);            // reverse direction
+  stepper.autoPower(true);
+  stepper.setAcceleration(300);
+  stepper.setSpeedDeg(mmStoDeg((float)SPEED_MAX));
+  Timer2.setPeriod(stepper.getMinPeriod() / 2);
+  stepper.brake();
+  Timer2.enableISR();
+  stepper.reset();                  // остановка и сброс позиции в 0
+  
  
   oled.init();              // инициализация
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
@@ -123,6 +136,11 @@ void setup() {
 ISR(TIMER2_A) {
   enc1.tick();
   stepper.tick(); // тикаем тут
+}
+
+void yield() {
+  // костыль, на всякий случай.
+  stepper.tick();
 }
 
 void loop() {
@@ -170,7 +188,7 @@ void loop() {
         if (runMotor) {
           motorCTL(newSpeedX10);
         } else {
-          motorCTL(0);
+          motorCTL(-1);
           runMotor = false;
         }
         interactiveSet();
@@ -276,7 +294,7 @@ void beepO() {
 
 void emStop(int reason) {
   runMotor = false;
-  motorCTL(0);
+  motorCTL(-1);
   stepper.disable();
   Heat = false;
   analogWrite(CFG_HEATER_PIN, 0);
@@ -315,6 +333,7 @@ void motorCTL(long setSpeedX10) {
 #endif // SERIAL_DEBUG_STEPPER
   oled.setScale(2);
   oled.setCursorXY(0, 23);
+/*
   if (setSpeedX10 != 0) {
     //stepper.setCurrent(stepperPosition);
     stepper.setSpeedDeg(mmStoDeg((float)setSpeedX10/10), SMOOTH);        // [degree/sec]
@@ -326,6 +345,19 @@ void motorCTL(long setSpeedX10) {
     stepper.disable();
     oled.println(".");
   }
+*/
+
+  if (setSpeedX10 > 0) {
+    stepper.setSpeedDeg(mmStoDeg((float)setSpeedX10/10), SMOOTH);        // [degree/sec]
+    oled.println("*");
+  } else if (setSpeedX10 == 0) {
+    stepper.stop();
+    oled.println(".");
+  } else {
+    stepper.brake();    
+    oled.println(".");
+  }
+  
 #if defined(SERIAL_DEBUG_STEPPER)
   Serial.print((float)setSpeedX10/10);
   Serial.print(",\t");

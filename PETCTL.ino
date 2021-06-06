@@ -164,7 +164,7 @@ void loop() {
         printTargetTemp(newTargetTemp);
       }
     } else if (whatToChange == CHANGE_SPEED) {
-      encRotationToValue(&newSpeedX10, 1, -1 * SPEED_MAX * 10, SPEED_MAX * 10);
+      encRotationToValue(&newSpeedX10, 1, 0, SPEED_MAX * 10);
       if (enc1.isHolded()) {
         runMotor = ! runMotor;
         if (runMotor) {

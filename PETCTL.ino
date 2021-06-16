@@ -55,7 +55,7 @@ void encRotationToValue (long* value, int inc = 1, long minValue = 0, long maxVa
 
 void setup() {
 
-#if defined(SERIAL_DEBUG_TEMP) || defined(SERIAL_DEBUG_STEPPER)
+#if defined(SERIAL_DEBUG_TEMP) || defined(SERIAL_DEBUG_STEPPER) || defined(SERIAL_DEBUG_TEMP_PID)
   Serial.begin(9600);
 #endif //SERIAL_DEBUG_TEMP || SERIAL_DEBUG_STEPPER
 #if defined(SERIAL_DEBUG_STEPPER)
@@ -211,26 +211,14 @@ void loop() {
       prevTemp = curTemp;
       printCurrentTemp(curTemp);
     }
-#if defined(SERIAL_DEBUG_TEMP)
-    Serial.print(curTemp);
-#endif //end SERIAL_DEBUG_TEMP
     if (Heat) {
       int pidOut = (int) constrain(regulator.getResultTimer(), 0, 255);
       analogWrite(CFG_HEATER_PIN, pidOut);
-#if defined(SERIAL_DEBUG_TEMP)
-      Serial.print(' ');
-      Serial.print(pidOut);
-#endif //end SERIAL_DEBUG_TEMP
+      debugTemp(curTemp, pidOut);
     } else {
       analogWrite(CFG_HEATER_PIN, 0);
-#if defined(SERIAL_DEBUG_TEMP)
-      Serial.print(' ');
-      Serial.print(0);
-#endif //end SERIAL_DEBUG_TEMP
+      debugTemp(curTemp, 0);
     }
-#ifdef SERIAL_DEBUG_TEMP
-    Serial.println(' ');
-#endif //end SERIAL_DEBUG_TEMP
 
     oled.setCursorXY(90, 47);
     if(!digitalRead(CFG_ENDSTOP_PIN)) {
@@ -262,6 +250,21 @@ void loop() {
       oled.println("   ");
       finalLength = 0;
     }
+}
+
+void debugTemp(float temp, int out) {
+#if defined(SERIAL_DEBUG_TEMP)
+    static long debug_time;
+    if (debug_time < millis() ) {
+      debug_time = millis() + 200;
+      Serial.print(temp);
+#if defined(SERIAL_DEBUG_TEMP_PID)
+      Serial.print(' ');
+      Serial.print(out);
+#endif // end SERIAL_DEBUG_TEMP_PID
+      Serial.println(' ');
+    }
+#endif //end SERIAL_DEBUG_TEMP
 }
 
 long mmStoDeg(float mmS) {

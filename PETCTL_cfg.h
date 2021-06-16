@@ -66,6 +66,7 @@
   enable/disable serial debug output
 */
 //#define SERIAL_DEBUG_TEMP 
+//#define SERIAL_DEBUG_TEMP_PID 
 //#define SERIAL_DEBUG_STEPPER
 
 /* Gear ratio for PETPull-2 Zneipas reductor variant */

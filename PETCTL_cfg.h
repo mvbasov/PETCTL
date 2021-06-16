@@ -35,9 +35,10 @@
 /* Extra length to pull after end stop triggered [m] */
 #define CFG_PULL_EXTRA_LENGTH 0.07
 /* PID regulator coefficients */
-#define CFG_PID_P 14
-#define CFG_PID_I 0.93
-#define CFG_PID_D 59.87
+//PID p: 12.69  PID i: 0.71 PID d: 57.11
+#define CFG_PID_P 12.69
+#define CFG_PID_I 0.71
+#define CFG_PID_D 57.11
 /* Which pin heater MOSFET connected to */
 #define CFG_HEATER_PIN 9
 /* Target filament bobin diameter [mm] */

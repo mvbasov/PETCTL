@@ -27,7 +27,7 @@ void setup() {
   oled.println("PID");
   oled.setScale(1);
   oled.setCursor(20, 7);
-  oled.print("mvb    V 0.9b");
+  oled.print("mvb    V 0.1");
   delay(3000);
   oled.clear();
   

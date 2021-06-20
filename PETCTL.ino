@@ -402,7 +402,9 @@ void printTargetTemp(float t){
 void printCurrentTemp(float t) {
       oled.setScale(2);      
       oled.setCursorXY(12, 0);
-      oled.println(t, 1);   
+      oled.print(t, 1);   
+      if (t < 99.9) oled.print(" "); //clean screen garbage
+      if (t < 9.9) oled.print(" ");
 }
 
 void printSpeed(long s){

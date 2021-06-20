@@ -4,7 +4,6 @@
 #define DRIVER_STEP_TIME 6  // меняем задержку на 6 мкс
 #include "GyverStepper.h"
 GStepper<STEPPER2WIRE> stepper(200 * CFG_STEP_DIV, CFG_STEP_STEP_PIN, CFG_STEP_DIR_PIN, CFG_STEP_EN_PIN);
-//long stepperPosition = 0;
 
 #include "GyverTimers.h"
 
@@ -67,25 +66,6 @@ void setup() {
   pinMode(CFG_ENDSTOP_PIN, INPUT_PULLUP);
   pinMode(CFG_SOUND_PIN, OUTPUT);
   
-/*
-  stepper.disable();
-  // установка макс. скорости в градусах/сек
-  stepper.setMaxSpeedDeg(mmStoDeg((float)SPEED_MAX));
-  // установка ускорения в шагах/сек/сек
-  stepper.setAcceleration(200);
-  // настраиваем прерывания с периодом, при котором 
-  // система сможет обеспечить максимальную скорость мотора.
-  // Для большей плавности лучше лучше взять период чуть меньше, например в два раза
-  Timer2.setPeriod(stepper.getMinPeriod() / 1.2);
-  // взводим прерывание
-  Timer2.enableISR();
-  stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
-  stepper.setSpeedDeg((float)0, SMOOTH);
-  stepper.reverse(true);            // reverse direction
-  stepper.reset();                  // остановка и сброс позиции в 0
-  //stepperPosition = 0;
-*/
-
   stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
   stepper.reverse(true);            // reverse direction
   stepper.autoPower(true);
@@ -145,7 +125,7 @@ void yield() {
 
 void loop() {
     enc1.tick();
-    //stepper.tick();
+    stepper.tick();
 
     long newTargetTemp = targetTemp;
     long newSpeedX10 = SpeedX10;
@@ -204,6 +184,7 @@ void loop() {
     }
 
     curTemp = getTemp();
+    stepper.tick();
     if (curTemp > CFG_TEMP_MAX - 10) emStop(OVERHEAT);
     if (curTemp < -10) emStop(THERMISTOR_ERROR);
     regulator.input = curTemp;
@@ -336,19 +317,6 @@ void motorCTL(long setSpeedX10) {
 #endif // SERIAL_DEBUG_STEPPER
   oled.setScale(2);
   oled.setCursorXY(0, 23);
-/*
-  if (setSpeedX10 != 0) {
-    //stepper.setCurrent(stepperPosition);
-    stepper.setSpeedDeg(mmStoDeg((float)setSpeedX10/10), SMOOTH);        // [degree/sec]
-    oled.println("*");
-  } else {
-    //stepperPosition = stepper.getCurrent();
-    stepper.setSpeedDeg((float)0, SMOOTH);
-    stepper.stop();
-    stepper.disable();
-    oled.println(".");
-  }
-*/
 
   if (setSpeedX10 > 0) {
     stepper.setSpeedDeg(mmStoDeg((float)setSpeedX10/10), SMOOTH);        // [degree/sec]
@@ -413,7 +381,6 @@ void printSpeed(long s){
       oled.setScale(2);      
       oled.setCursorXY(12, 23);
       if(whatToChange == CHANGE_SPEED)  oled.invertText(true);
-      //oled.println(s * REDCONST * 1000,2);
       oled.print((float)s/10, 1);
       if (s<100) oled.print(" "); //fix display garbage 
       oled.invertText(false);
@@ -443,9 +410,7 @@ float getTemp() {
   // convert the value to resistance
   average = 1023 / average - 1;
   average = CFG_TERM_SERIAL_R / average;
-  //Serial.print("Thermistor resistance "); 
-  //Serial.println(average);
-  
+
   float steinhart;
   steinhart = average / CFG_TERM_VALUE;     // (R/Ro)
   steinhart = log(steinhart);                  // ln(R/Ro)

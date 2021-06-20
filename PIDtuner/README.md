@@ -1,4 +1,4 @@
-#### PID tuner
+# PID tuner
 
 <img style="max-width:75%;height:auto" src="PID_screen.jpg" alt="Screen photo" />
 

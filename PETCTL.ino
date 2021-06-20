@@ -412,7 +412,8 @@ void printSpeed(long s){
       oled.setCursorXY(12, 23);
       if(whatToChange == CHANGE_SPEED)  oled.invertText(true);
       //oled.println(s * REDCONST * 1000,2);
-      oled.println((float)s/10, 1);  
+      oled.print((float)s/10, 1);
+      if (s<100) oled.print(" "); //fix display garbage 
       oled.invertText(false);
 }
 

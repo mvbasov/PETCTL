@@ -1001,6 +1001,21 @@
    <g stroke-linecap="square" stroke-width="1" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="none" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,1035.76,157.48)">
     <text y="70" x="4" font-family="osifont" font-size="50" font-style="normal" fill="#000000" fill-opacity="1" font-weight="400" stroke="none" xml:space="preserve">1</text>
    </g>
+   <g stroke-linecap="square" stroke-width="1" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="none" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,1557.13,982.863)">
+    <rect y="0" width="0" x="0" height="0"/>
+   </g>
+   <g stroke-linecap="round" stroke-width="3.5" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="none" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,1557.13,982.863)">
+    <path fill-rule="evenodd" d="M-631.729,110.178 L-581.729,110.178 L-194.199,179.921" vector-effect="none"/>
+   </g>
+   <g stroke-linecap="round" stroke-width="3.5" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="#000000" fill-opacity="1" font-weight="400" stroke="#000000" transform="matrix(0.984189,0.177122,-0.177122,0.984189,1362.93,1162.78)">
+    <path fill-rule="evenodd" d="M0,0 L-50,-8.33333 L-50,8.33333 L0,0" vector-effect="none"/>
+   </g>
+   <g stroke-linecap="round" stroke-width="3.5" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="#ffffff" fill-opacity="1" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,1557.13,982.863)">
+    <path fill-rule="evenodd" d="M-631.729,110.178 C-631.729,137.076 -653.534,158.881 -680.432,158.881 C-707.33,158.881 -729.135,137.076 -729.135,110.178 C-729.135,83.2802 -707.33,61.4751 -680.432,61.4751 C-653.534,61.4751 -631.729,83.2802 -631.729,110.178 " vector-effect="none"/>
+   </g>
+   <g stroke-linecap="square" stroke-width="1" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="none" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,860.702,1047.04)">
+    <text y="70" x="4" font-family="osifont" font-size="50" font-style="normal" fill="#000000" fill-opacity="1" font-weight="400" stroke="none" xml:space="preserve">3</text>
+   </g>
    <g font-family="Sans Serif" font-size="31.75" font-style="normal" fill="#ffffff" fill-opacity="1" font-weight="400" stroke="none" transform="matrix(1,0,0,1,535.076,1609.15)">
     <path fill-rule="evenodd" d="M239.96,4.37694 C239.987,2.91811 240,1.45907 240,9.53404e-14 L240,3.66374e-14 C240,-1.45907 239.987,-2.91811 239.96,-4.37694 L222.254,-35.0447 L141.477,-174.955 L123.771,-205.623 C121.27,-207.128 118.743,-208.587 116.19,-210 L80.7775,-210 L-80.7775,-210 L-116.19,-210 C-118.743,-208.587 -121.27,-207.128 -123.771,-205.623 L-141.477,-174.955 L-222.254,-35.0447 L-239.96,-4.37694 C-240.013,-1.45922 -240.013,1.45922 -239.96,4.37694 L-222.254,35.0447 L-141.477,174.955 L-123.771,205.623 C-121.27,207.128 -118.743,208.587 -116.19,210 L-80.7775,210 L80.7775,210 L116.19,210 C118.743,208.587 121.27,207.128 123.771,205.623 L141.477,174.955 L222.254,35.0447 L239.96,4.37694" vector-effect="non-scaling-stroke"/>
    </g>
@@ -1211,11 +1226,14 @@
    <g stroke-linecap="round" stroke-width="3.5" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="#000000" fill-opacity="1" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,292.159,1928.97)">
     <path fill-rule="evenodd" d="M0,0 L49.9219,8.78894 L50.0739,-7.87704 L0,0" vector-effect="none"/>
    </g>
-   <g stroke-linecap="square" stroke-width="1" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="none" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,959,1636.02)">
+   <g stroke-linecap="square" stroke-width="1" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="none" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,944.5,1602.82)">
     <text y="70" x="4" font-family="osifont" font-size="50" font-style="normal" fill="#000000" fill-opacity="1" font-weight="400" stroke="none" xml:space="preserve">1. Thread M8</text>
    </g>
-   <g stroke-linecap="square" stroke-width="1" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="none" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,959,1636.02)">
+   <g stroke-linecap="square" stroke-width="1" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="none" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,944.5,1602.82)">
     <text y="136.391" x="4" font-family="osifont" font-size="50" font-style="normal" fill="#000000" fill-opacity="1" font-weight="400" stroke="none" xml:space="preserve">2. Channel need to be extended by reamer to 1.7-1.8 mm</text>
+   </g>
+   <g stroke-linecap="square" stroke-width="1" stroke-linejoin="bevel" font-family="Sans Serif" font-size="31.75" stroke-opacity="1" font-style="normal" fill="none" font-weight="400" stroke="#000000" transform="matrix(1,0,0,1,944.5,1602.82)">
+    <text y="202.781" x="4" font-family="osifont" font-size="50" font-style="normal" fill="#000000" fill-opacity="1" font-weight="400" stroke="none" xml:space="preserve">3. Made by "arrow head" drill bit for ceramics 12 mm size</text>
    </g>
   </g>
  </g>

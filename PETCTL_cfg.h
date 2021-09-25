@@ -6,6 +6,8 @@
 #define CFG_STEP_DIR_PIN 5
 /* Which pin stepper driver EN pin connected */
 #define CFG_STEP_EN_PIN 7
+/* Invert stepper rotation direction (comment out to disable invertion)*/
+#define CFG_STEP_INVERT 
 /* Which pin encoder CLK pin connected */
 #define CFG_ENC_CLK 3
 /* Which pin encoder DT pin connected */

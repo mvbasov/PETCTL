@@ -67,7 +67,9 @@ void setup() {
   pinMode(CFG_SOUND_PIN, OUTPUT);
   
   stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
+#if defined(CFG_STEP_INVERT)
   stepper.reverse(true);            // reverse direction
+#endif //CFG_STEP_INVERT
   stepper.autoPower(true);
   stepper.setAcceleration(300);
   stepper.setSpeedDeg(mmStoDeg((float)SPEED_MAX));

@@ -64,6 +64,7 @@ void setup() {
 #endif //SERIAL_DEBUG_STEPPER
 
   pinMode(CFG_ENDSTOP_PIN, INPUT_PULLUP);
+  pinMode(CFG_EMENDSTOP_PIN, INPUT_PULLUP);
   pinMode(CFG_SOUND_PIN, OUTPUT);
   
   stepper.setRunMode(KEEP_SPEED);   // режим поддержания скорости
@@ -93,7 +94,7 @@ void setup() {
   oled.println("PETCTL");
   oled.setScale(1);
   oled.setCursor(20, 7);
-  oled.print("mvb    V 0.9");
+  oled.print("mvb   V 0.10");
   delay(3000);
  
   oled.clear();
@@ -233,6 +234,24 @@ void loop() {
       oled.println("   ");
       finalLength = 0;
     }
+    
+    oled.setCursorXY(112, 24);
+    if(!digitalRead(CFG_EMENDSTOP_PIN)) {
+      if(!runMotor) {
+        oled.setScale(2);
+        oled.println("X");
+      } else {
+        runMotor = false;
+        motorCTL(-1);
+        Heat = false;
+        printHeaterStatus(Heat);
+        beepI();
+        beepI();
+       }
+    } else {
+      oled.setScale(2);
+      oled.println(" ");
+    } 
 }
 
 void debugTemp(float temp, int out) {

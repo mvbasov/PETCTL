@@ -1,4 +1,4 @@
-﻿/*
+/*
     GyverOLED - лёгкая и быстрая библиотека для OLED дисплея
     Документация: 
     GitHub: https://github.com/GyverLibs/GyverOLED

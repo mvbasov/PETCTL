@@ -7,8 +7,8 @@
 Вот схема:
 
 ---
-![PETCTL scheme](PCB/EU2TT/PETCTL_v0.9 diagram.png)
 
+<img style="max-width:90%;height:auto" src="PCB/EU2TT/PETCTL_v0.9 diagram.png" alt="PETCTL scheme" />
 Спасибо [EU2TT](https://github.com/EU2TT) за помощь в облагораживании и доработке схемы.
 
 ---

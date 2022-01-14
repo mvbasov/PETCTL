@@ -7,7 +7,7 @@
 Вот схема:
 
 ---
-![PETCTL scheme](PCB/EU2TT/v0.8.png)
+![PETCTL scheme](PCB/EU2TT/PETCTL_v0.9 diagram.png)
 
 Спасибо [EU2TT](https://github.com/EU2TT) за помощь в облагораживании и доработке схемы.
 
@@ -34,5 +34,3 @@
 
 # [Список подходящих компонентов](BOM.md)
 
-
-![alt text](IMG/%40arr.png?raw=true)

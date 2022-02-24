@@ -15,7 +15,7 @@
 /* Which pin encoder SW pin connected */
 #define CFG_ENC_SW 4
 /* Type of encoder: TYPE1 or TYPE2 */
-#define CFG_ENC_TYPE TYPE1
+#define CFG_ENC_TYPE TYPE2
 /* Initial target temperature [degree C]*/
 #define CFG_TEMP_INIT 180
 /* Maximum allowed temperature [degree C], allowed to set to 10 degree less */

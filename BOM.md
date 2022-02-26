@@ -13,7 +13,7 @@
   * [OLED](https://www.aliexpress.com/item/32981934105.html) (информация [EU2TT](https://github.com/EU2TT))
   * [OLED](https://aliexpress.ru/item/32233342471.html?spm=a2g0v.12010615.8148356.5.10b6300e7yBHzp&_ga=2.39130275.1018978709.1621017953-798418294.1577286351&sku_id=66895708988) (информация [nehilo](https://github.com/nehilo))
 * *Энкодер*
-  * [Энкодер 20 мм использован при сборке PCB v0.9 TYPE2 в конфиге](https://a.aliexpress.com/_AW7f2p)
+  * [Энкодер 20 мм](https://a.aliexpress.com/_AW7f2p) использован при сборке PCB v0.9 TYPE2 в конфиге
   * [Энкодер 15 мм](https://a.aliexpress.com/_AX70XX)
   * [Энкодер](https://a.aliexpress.com/_9uJ3AL) Должен подойти
   * [Энкодер](https://aliexpress.ru/item/33038646005.html?spm=a2g0s.9042311.0.0.264d33edAGOsuI&_ga=2.6190515.1018978709.1621017953-798418294.1577286351&sku_id=67389580918) (информация [nehilo](https://github.com/nehilo))

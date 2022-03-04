@@ -63,6 +63,8 @@ void setup() {
   Serial.println("[deg/s],\t[step/s],\t[deg],\t[mm/s],\t[deg/s],\t[deg]");
 #endif //SERIAL_DEBUG_STEPPER
 
+  analogReadResolution(10);
+
   pinMode(CFG_ENDSTOP_PIN, INPUT_PULLUP);
   pinMode(CFG_EMENDSTOP_PIN, INPUT_PULLUP);
   pinMode(CFG_SOUND_PIN, OUTPUT);
@@ -78,17 +80,16 @@ void setup() {
   stepper.brake();
   Timer2.enableISR();
   stepper.reset();                  // остановка и сброс позиции в 0
-  
  
   oled.init();              // инициализация
   // ускорим вывод, ВЫЗЫВАТЬ ПОСЛЕ oled.init()!!!
   Wire.setClock(400000L);   // макс. 800'000
+  oled.clear();
   
  //заставка
 #if defined(CFG_SOUND_START)
   beepE();
 #endif
-  oled.clear();
   oled.setScale(3);
   oled.setCursor(13, 2);
   oled.println("PETCTL");

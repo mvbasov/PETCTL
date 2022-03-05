@@ -5,21 +5,34 @@
 Для монтажа платы используются резисторы типоразмера 0805 но, при большом желании, можно использовать типоразмер 0603:
 ![0603 on 0805 pads](IMG/0603_on_0805_pads.jpg)
 
+Внимательно порочитайте (описание платы) особенно в части питания OLED. Перемычки должны быть запаяны, например, так:
+![OLED power](IMG/OLED_power.jpg)
+
 Собранная плата выглядит так:
-![mounted_top](IMG/mounted_top.jpg)
-![mounted_botom](IMG/mounted_bottom.jpg)
+![mounted_top](IMG/PCB_assembled_top.jpg)
+![mounted_botom](IMG/PCB_assembled_bottom.jpg)
+
+Это первая, разработанная нами, версия (бета) платы и она не "оптимизированна" для сборки. Узел где расположен входной фильтрующий конденсатор и преобразователь 24 В в 5 В удалось собрать так:
+![power filter I](IMG/power_filter_I.jpg)
+![power filter II](IMG/power_filter_II.jpg)
+![power filter III](IMG/power_filter_III.jpg)
 
 Под эту плату был разработан корпус для монтажа на основание (деревянное) станка. Файлы для печати корпуса можно найти [здесь](3D_models/)
 
 Порядок сборки корпуса следующий:
 1. закрепляем основную часть корпуса на основании станка с помощью саморезов DINxxx
-![case_mount](IMG/case_mount.jpg)
+![fix case](IMG/fix_case.jpg)
 2. закрепляем плату в основной части корпуса
-![mounted_top](IMG/mounted_top.jpg)
+![fix PCB](IMG/fix_PCB.jpg)
 3. подключаем кабели идущиё из корпуса наружу (питание, нагреватель, термистор, датчик окончания ленты, датчик обрыва прутка)
-![mounted_top](IMG/mounted_top.jpg)
+![external cables](IMG/external_cables.jpg)
 4. монтируем на переднюю панель OLED, энкодер и светодиод и припаиваем кабели к энкодеру и светодиоду. Для OLED готовим кабель с разъёмами Dupont на конце.
-![mounted_top](IMG/mounted_top.jpg)
-5. устанавливаем переднюю панель на место и фиксируем верхней/задней частью корпуса
+![front pannel cables](IMG/front_pannel_cables.jpg)
+![front pannel cables side](IMG/front_pannel_cables_side.jpg)
+5. устанавливаем переднюю панель на место, подключаем кабели к плате и фиксируем верхней/задней частью корпуса
+![set front pannel](IMG/set_front_pannel.jpg)
 6. Прикручиваем верхнюю/заднюю часть корпуса саморезами DINxxx сверху 3.5 x 16, сзади 3.5 x 25
+![top back fasteners](IMG/top_back_fasteners.jpg)
+![fix top cover](IMG/fix_top_cover.jpg)
 7. Наслаждаемся результатом :)
+![PETCTL assembled](IMG/PETCTL_assembled.jpg)

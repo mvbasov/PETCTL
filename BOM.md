@@ -5,6 +5,7 @@
 * *Arduino Nano*
   * [Iskra Nano Pro](https://amperka.ru/product/iskra-nano-pro) файлы конфигурации для Arduino IDE брать с сайта [Amperka.ru](http://wiki.amperka.ru/%D0%BF%D1%80%D0%BE%D0%B4%D1%83%D0%BA%D1%82%D1%8B:iskra-nano-pro)
   * [Arduino Nano v3 ](https://a.aliexpress.com/_99fklT) при прошивке указывать старый загрузчик.
+  * [LGT8F328P LQFP32](https://a.aliexpress.com/_A61gLj) Уже не доступна к заказу. Использовал зелёную, без кварца. Код скорректирован для работы с этой платой.
 * *Драйвер шагового двигателя*
   *  A4988, DRV8825 или ~~TMC2208~~(пока не у всех работает)
 * *OLED дисплей* **(Внимание! выводы питания могут быть ровно наоборот!)**

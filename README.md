@@ -39,5 +39,9 @@
 
 ![PETCTL top view](AllViewTop.jpg)
 
+# Благодарности
+* [nehilo](https://github.com/nehilo) За первоначальную идею, баннеры и логотип проекта.
+* [EU2TT](https://github.com/EU2TT) За облагораживание схемы и разработку печатной платы.
+
 # вот так всё начиналось
 <img style="max-width:75%;height:auto" src="PETCTL_screen.jpg" alt="Screen photo" />

@@ -16,7 +16,7 @@
 
 ---
 
-- В данный момент контроллер используется для управления [редуктором PETPull-2](https://drive.google.com/drive/mobile/folders/1PTYfURWS0YwCPlCB0__WyJwqnNEWJszi/1sBVlF62mEFIv8p1nZIAzGzY9kn1hc471/1dZt_md5HvzvhJHkd0jt-X09GqNWF04Xx/17iroY9sDo6CCnm7wmTta5178AHUz0zxp?usp=sharing&sort=13&direction=a)
+- В данный момент контроллер используется для управления [редуктором PETPull-2](https://drive.google.com/drive/mobile/folders/1PTYfURWS0YwCPlCB0__WyJwqnNEWJszi/1sBVlF62mEFIv8p1nZIAzGzY9kn1hc471/1dZt_md5HvzvhJHkd0jt-X09GqNWF04Xx/17iroY9sDo6CCnm7wmTta5178AHUz0zxp?usp=sharing&sort=13&direction=a) ([PETPull-2 на Thingiverse](https://www.thingiverse.com/thing:4900782))
 - Нагревательный блок со стандартными нагревателем от принтера 24V 40W. Термистор, так же, от принтера.
 - Питается от внешнего БП 3D принтера на 24V. Потребление не превышает 60 W. 
 - [Фюзер (сопло) моей конструкции](https://github.com/mvbasov/PETCTL/tree/github/3D_models/HeatedBlock)

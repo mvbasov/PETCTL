@@ -63,7 +63,9 @@ void setup() {
   Serial.println("[deg/s],\t[step/s],\t[deg],\t[mm/s],\t[deg/s],\t[deg]");
 #endif //SERIAL_DEBUG_STEPPER
 
+#if defined(__LGT8F__)
   analogReadResolution(10);
+#endif
 
   pinMode(CFG_ENDSTOP_PIN, INPUT_PULLUP);
   pinMode(CFG_EMENDSTOP_PIN, INPUT_PULLUP);

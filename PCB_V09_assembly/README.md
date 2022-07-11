@@ -39,7 +39,7 @@
 ![fix PCB](IMG/fix_PCB.jpg)
 3. подключаем кабели идущиё из корпуса наружу (питание, нагреватель, термистор, датчик окончания ленты, датчик обрыва прутка)
 ![external cables](IMG/external_cables.jpg)
-4. монтируем на переднюю панель OLED, энкодер и светодиод и припаиваем кабели к энкодеру и светодиоду. Для OLED готовим кабель с разъёмами Dupont на конце.
+4. монтируем на переднюю панель OLED, энкодер и светодиод и припаиваем кабели к энкодеру и светодиоду. Для OLED готовим кабель с разъёмами Dupont на конце. [Vasily Afanasyev](https://github.com/h4lf) разработал [переднюю панель](https://github.com/mvbasov/PETCTL/tree/github/PCB_V09_assembly/3D_models/PETCTL_09PCB_case_V7-Front-ModLatch) с крепление дисплея на защёлках.
 ![front pannel cables](IMG/front_pannel_cables.jpg)
 ![front pannel cables side](IMG/front_pannel_cables_side.jpg)
 5. устанавливаем переднюю панель на место, подключаем кабели к плате и фиксируем верхней/задней частью корпуса
